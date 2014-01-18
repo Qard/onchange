@@ -1,0 +1,18 @@
+{
+  "name": "onchange",
+  "version": "0.0.1",
+  "description": "Use glob patterns to watch file sets and run a command when anything is added, changed or deleted.",
+  "author": "Stephen Belanger <admin@stephenbelanger.com>",
+  "keywords": [
+    "glob",
+    "watch",
+    "change"
+  ],
+  "bin": {
+    "onchange": "index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "gaze": "~0.4.3"
+  }
+}
