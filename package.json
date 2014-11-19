@@ -14,5 +14,18 @@
   "license": "MIT",
   "dependencies": {
     "gaze": "~0.4.3"
-  }
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qard/onchange.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Qard/onchange/issues"
+  },
+  "homepage": "https://github.com/Qard/onchange"
 }
