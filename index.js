@@ -11,6 +11,12 @@ var pwd = process.cwd()
 var matches = []
 var arg
 
+// Print usage info
+if (!process.argv.length || process.argv == '--help') {
+  console.log('Usage:  onchange [file]... -- <command> [arg]...');
+  process.exit();
+}
+
 // Shift everything before -- into match list
 while ((arg = process.argv.shift()) !== '--') {
   matches.push(arg)
