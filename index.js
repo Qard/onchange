@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var spawn = require('child_process').spawn
+var spawn = require('cross-spawn').spawn
 var gaze = require('gaze')
 
 // Shift node and script name out of argv
