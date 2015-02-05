@@ -13,8 +13,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "cross-spawn": "^0.2.3",
-    "gaze": "~0.4.3"
+    "cross-spawn": "~0.2.3",
+    "gaze": "~0.5.1"
   },
   "main": "index.js",
   "devDependencies": {},
