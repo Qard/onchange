@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 var spawn = require('cross-spawn').spawn
 var gaze = require('gaze')
+var debug = require('debug')('onchange')
+var log = debug;
 
 // Shift node and script name out of argv
 process.argv.shift()
@@ -27,7 +29,7 @@ var command = process.argv.shift()
 var args = process.argv
 
 // Notify the user what they are watching
-console.log('watching', matches.join(', '))
+log('watching ' + matches.join(', '))
 
 // Ignore node_modules folders, as they eat CPU like crazy
 matches.push('!**/node_modules/**')
@@ -43,7 +45,7 @@ gaze(matches, function () {
     running = true;
 
     // Log the event type and the file affected
-    console.log(type, file.replace(pwd, ''))
+    log(type + ' ' + file.replace(pwd, ''))
 
     // Run the command and forward output
     var proc = spawn(command, args, {
@@ -52,7 +54,7 @@ gaze(matches, function () {
 
     // Log the result and unlock
     proc.on('close', function (code) {
-      console.log('completed with code', code)
+      log('completed with code ' + code)
       running = false;
     })
   })
