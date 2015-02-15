@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var spawn = require('cross-spawn').spawn
-var gaze = require('gaze')
+var chokidar = require('chokidar')
 
 // Shift node and script name out of argv
 process.argv.shift()
@@ -32,18 +32,19 @@ console.log('watching', matches.join(', '))
 // Ignore node_modules folders, as they eat CPU like crazy
 matches.push('!**/node_modules/**')
 
-// Start the watch
-gaze(matches, function () {
-  var running = false;
+var watcher = chokidar.watch( matches );
+var running = false;
 
+watcher.on('ready', function(){
+  console.log( 'File scan completed' );
   // For any change, creation or deletion, try to run.
   // However, skip if the last run is still active.
-  this.on('all', function (type, file) {
+  watcher.on('all', function (event, file) {
     if (running) return;
     running = true;
 
-    // Log the event type and the file affected
-    console.log(type, file.replace(pwd, ''))
+    // Log the event and the file affected
+    console.log(event, file.replace(pwd, ''))
 
     // Run the command and forward output
     var proc = spawn(command, args, {
@@ -56,4 +57,4 @@ gaze(matches, function () {
       running = false;
     })
   })
-})
+});
