@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 var spawn = require('cross-spawn').spawn
+var log = require('debug')('onchange')
 var chokidar = require('chokidar')
 
 // Shift node and script name out of argv
@@ -27,7 +28,7 @@ var command = process.argv.shift()
 var args = process.argv
 
 // Notify the user what they are watching
-console.log('watching', matches.join(', '))
+log('watching ' + matches.join(', '))
 
 // Ignore node_modules folders, as they eat CPU like crazy
 matches.push('!**/node_modules/**')
@@ -43,7 +44,7 @@ watcher.on('ready', function () {
     running = true
 
     // Log the event and the file affected
-    console.log(event, file.replace(pwd, ''))
+    log(event + ' ' + file.replace(pwd, ''))
 
     // Run the command and forward output
     var proc = spawn(command, args, {
@@ -52,7 +53,7 @@ watcher.on('ready', function () {
 
     // Log the result and unlock
     proc.on('close', function (code) {
-      console.log('completed with code', code)
+      log('completed with code ' + code)
       running = false
     })
   })
