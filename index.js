@@ -3,29 +3,40 @@ var spawn = require('cross-spawn').spawn
 var log = require('debug')('onchange')
 var chokidar = require('chokidar')
 
-// Shift node and script name out of argv
-process.argv.shift()
-process.argv.shift()
-
-// Setup some storage variables
-var pwd = process.cwd()
-var matches = []
-var arg
+// Parse argv with minimist...it's easier this way.
+var argv = require('minimist')(process.argv.slice(2), {
+  '--': true
+})
 
 // Print usage info
-if ( ! process.argv.length || process.argv == '--help') {
+if ( ! argv._.length || argv.help) {
   console.log('Usage:  onchange [file]... -- <command> [arg]...')
   process.exit()
 }
 
-// Shift everything before -- into match list
-while ((arg = process.argv.shift()) !== '--') {
-  matches.push(arg)
+// Setup some storage variables
+var arg
+var pwd = process.cwd()
+var matches = argv._
+
+// Build exclusion list
+var excludes = []
+if (Array.isArray(argv.exclude)) {
+  excludes = argv.exclude
+} else if (argv.exclude) {
+  excludes = [argv.exclude]
 }
 
+excludes.forEach(function (exclude) {
+  matches.push('!' + exclude)
+})
+
 // Shift first thing after to command and use the rest as args
-var command = process.argv.shift()
-var args = process.argv
+var args = argv['--']
+var command = args.shift()
+
+// Convert arguments to templates
+var tmpls = args.map(tmpl)
 
 // Notify the user what they are watching
 log('watching ' + matches.join(', '))
@@ -33,6 +44,7 @@ log('watching ' + matches.join(', '))
 // Ignore node_modules folders, as they eat CPU like crazy
 matches.push('!**/node_modules/**')
 
+// Start watcher
 var watcher = chokidar.watch(matches)
 watcher.on('ready', function () {
   var running = false
@@ -46,8 +58,13 @@ watcher.on('ready', function () {
     // Log the event and the file affected
     log(event + ' ' + file.replace(pwd, ''))
 
+    // Generate argument strings from templates
+    var filtered = tmpls.map(function (tmpl) {
+      return tmpl({ changed: file })
+    })
+
     // Run the command and forward output
-    var proc = spawn(command, args, {
+    var proc = spawn(command, filtered, {
       stdio: ['ignore', process.stdout, process.stderr]
     })
 
@@ -58,3 +75,17 @@ watcher.on('ready', function () {
     })
   })
 })
+
+//
+// Helpers
+//
+
+// Double mustache template generator
+function tmpl (str) {
+  return function (data) {
+    return str.replace(/{{([^{}]*)}}/g, function (a, expression) {
+      var fn = new Function('data','with(data){return '+expression+'}')
+      return fn(data)
+    })
+  }
+}
