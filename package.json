@@ -13,7 +13,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "chokidar": "^1.0.0-rc3",
+    "chokidar": "~1.0.0-rc3",
     "cross-spawn": "~0.2.3"
   },
   "main": "index.js",

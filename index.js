@@ -12,9 +12,9 @@ var matches = []
 var arg
 
 // Print usage info
-if (!process.argv.length || process.argv == '--help') {
-  console.log('Usage:  onchange [file]... -- <command> [arg]...');
-  process.exit();
+if ( ! process.argv.length || process.argv == '--help') {
+  console.log('Usage:  onchange [file]... -- <command> [arg]...')
+  process.exit()
 }
 
 // Shift everything before -- into match list
@@ -32,16 +32,15 @@ console.log('watching', matches.join(', '))
 // Ignore node_modules folders, as they eat CPU like crazy
 matches.push('!**/node_modules/**')
 
-var watcher = chokidar.watch( matches );
-var running = false;
+var watcher = chokidar.watch(matches)
+watcher.on('ready', function () {
+  var running = false
 
-watcher.on('ready', function(){
-  console.log( 'File scan completed' );
   // For any change, creation or deletion, try to run.
   // However, skip if the last run is still active.
   watcher.on('all', function (event, file) {
-    if (running) return;
-    running = true;
+    if (running) return
+    running = true
 
     // Log the event and the file affected
     console.log(event, file.replace(pwd, ''))
@@ -54,7 +53,7 @@ watcher.on('ready', function(){
     // Log the result and unlock
     proc.on('close', function (code) {
       console.log('completed with code', code)
-      running = false;
+      running = false
     })
   })
-});
+})
