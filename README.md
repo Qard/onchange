@@ -6,11 +6,13 @@ Use glob patterns to watch file sets and run a command when anything is added, c
 
     npm install onchange
 
+Then either `npm install chokidar` or `npm install gaze` to enable file watcher capability.
+
 ## Usage
     
     onchange 'app/**/*.js' 'test/**/*.js' -- npm test
 
-You can match as many glob patterns as you like, just put the command you want to run after the -- and it will run any time a file matching any of the globs is added changed or deleted.
+You can match as many glob patterns as you like, just put the command you want to run after the -- and it will run any time a file matching any of the globs is added changed or deleted. Note that you can use `\` to escape `*` as well.
 
 ---
 
