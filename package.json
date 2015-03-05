@@ -15,7 +15,6 @@
   "dependencies": {
     "cross-spawn": "~0.2.3",
     "debug": "~2.1.1",
-    "gaze": "~0.5.1",
     "minimist": "~1.1.0"
   },
   "main": "index.js",
