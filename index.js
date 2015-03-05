@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var spawn = require('cross-spawn').spawn
 var log = require('debug')('onchange')
-var chokidar = require('chokidar')
+var watch = require('gaze')
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
@@ -45,7 +45,8 @@ log('watching ' + matches.join(', '))
 matches.push('!**/node_modules/**')
 
 // Start watcher
-var watcher = chokidar.watch(matches)
+
+var watcher = watch(matches);
 watcher.on('ready', function () {
   var running = false
 
