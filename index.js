@@ -1,7 +1,21 @@
 #!/usr/bin/env node
 var spawn = require('cross-spawn').spawn
 var log = require('debug')('onchange')
-var chokidar = require('chokidar')
+
+try {
+  var chokidar = require('chokidar')
+} catch(e) {
+}
+
+try {
+  var gaze = require('gaze')
+} catch(e) {
+}
+
+if (!chokidar && !gaze) {
+  console.log('Please `npm install chokidar` or `npm install gaze` first')
+  return
+}
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
@@ -45,7 +59,13 @@ log('watching ' + matches.join(', '))
 matches.push('!**/node_modules/**')
 
 // Start watcher
-var watcher = chokidar.watch(matches)
+var watcher
+if (gaze) {
+  watcher = gaze(matches)
+} else {
+  watcher = chokidar.watch(matches)
+}
+
 watcher.on('ready', function () {
   var running = false
 
