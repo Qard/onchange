@@ -1,80 +1,44 @@
-#!/usr/bin/env node
 var spawn = require('cross-spawn').spawn
 var log = require('debug')('onchange')
 var chokidar = require('chokidar')
 
-// Parse argv with minimist...it's easier this way.
-var argv = require('minimist')(process.argv.slice(2), {
-  '--': true
-})
+module.exports = function (matches, command, args) {
+  var pwd = process.cwd()
 
-// Print usage info
-if ( ! argv._.length || argv.help) {
-  console.log('Usage:  onchange [file]... -- <command> [arg]...')
-  process.exit()
-}
+  // Convert arguments to templates
+  var tmpls = args.map(tmpl)
 
-// Setup some storage variables
-var arg
-var pwd = process.cwd()
-var matches = argv._
+  var watcher = chokidar.watch(matches)
+  watcher.on('ready', function () {
+    var running = false
 
-// Build exclusion list
-var excludes = []
-if (Array.isArray(argv.exclude)) {
-  excludes = argv.exclude
-} else if (argv.exclude) {
-  excludes = [argv.exclude]
-}
+    // For any change, creation or deletion, try to run.
+    // However, skip if the last run is still active.
+    watcher.on('all', function (event, file) {
+      if (running) return
+      running = true
 
-excludes.forEach(function (exclude) {
-  matches.push('!' + exclude)
-})
+      // Log the event and the file affected
+      log(event + ' ' + file.replace(pwd, ''))
 
-// Shift first thing after to command and use the rest as args
-var args = argv['--']
-var command = args.shift()
+      // Generate argument strings from templates
+      var filtered = tmpls.map(function (tmpl) {
+        return tmpl({ changed: file })
+      })
 
-// Convert arguments to templates
-var tmpls = args.map(tmpl)
+      // Run the command and forward output
+      var proc = spawn(command, filtered, {
+        stdio: ['ignore', process.stdout, process.stderr]
+      })
 
-// Notify the user what they are watching
-log('watching ' + matches.join(', '))
-
-// Ignore node_modules folders, as they eat CPU like crazy
-matches.push('!**/node_modules/**')
-
-// Start watcher
-var watcher = chokidar.watch(matches)
-watcher.on('ready', function () {
-  var running = false
-
-  // For any change, creation or deletion, try to run.
-  // However, skip if the last run is still active.
-  watcher.on('all', function (event, file) {
-    if (running) return
-    running = true
-
-    // Log the event and the file affected
-    log(event + ' ' + file.replace(pwd, ''))
-
-    // Generate argument strings from templates
-    var filtered = tmpls.map(function (tmpl) {
-      return tmpl({ changed: file })
-    })
-
-    // Run the command and forward output
-    var proc = spawn(command, filtered, {
-      stdio: ['ignore', process.stdout, process.stderr]
-    })
-
-    // Log the result and unlock
-    proc.on('close', function (code) {
-      log('completed with code ' + code)
-      running = false
+      // Log the result and unlock
+      proc.on('close', function (code) {
+        log('completed with code ' + code)
+        running = false
+      })
     })
   })
-})
+}
 
 //
 // Helpers

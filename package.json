@@ -9,7 +9,7 @@
     "change"
   ],
   "bin": {
-    "onchange": "index.js"
+    "onchange": "cli.js"
   },
   "license": "MIT",
   "dependencies": {
