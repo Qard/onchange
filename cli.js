@@ -12,6 +12,8 @@ if ( ! argv._.length || argv.help) {
   process.exit()
 }
 
+var noise = argc.d
+
 // Setup some storage variables
 var arg
 var matches = argv._
@@ -33,4 +35,4 @@ var args = argv['--']
 var command = args.shift()
 
 // Start watcher
-onchange(matches, command, args)
+onchange(matches, command, args, noise)
