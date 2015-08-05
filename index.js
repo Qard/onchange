@@ -1,12 +1,17 @@
 var spawn = require('cross-spawn').spawn
-var log = require('debug')('onchange')
 var chokidar = require('chokidar')
 
-module.exports = function (matches, command, args) {
+module.exports = function (matches, command, args, verbose) {
   var pwd = process.cwd()
 
+  // Logging
+  function log(){
+    if (verbose) console.log.apply(console, arguments)
+  }
+
   // Notify the user what they are watching
-  log('watching ' + matches.join(', '))
+  var watching = 'watching ' + matches.join(', ')
+  log('onchange ' + watching)
 
   // Ignore node_modules folders, as they eat CPU like crazy
   matches.push('!**/node_modules/**')
@@ -21,11 +26,14 @@ module.exports = function (matches, command, args) {
     // For any change, creation or deletion, try to run.
     // However, skip if the last run is still active.
     watcher.on('all', function (event, file) {
-      if (running) return
+      if (running){
+        log("onchange: Skipped Last action still running.")
+        return
+      }
       running = true
 
       // Log the event and the file affected
-      log(event + ' ' + file.replace(pwd, ''))
+      log(event + ' to ' + file.replace(pwd, ''))
 
       // Generate argument strings from templates
       var filtered = tmpls.map(function (tmpl) {
@@ -39,8 +47,9 @@ module.exports = function (matches, command, args) {
 
       // Log the result and unlock
       proc.on('close', function (code) {
-        log('completed with code ' + code)
+        log('onchange: completed with code ' + code)
         running = false
+        log('onchange ' + watching)
       })
     })
   })
