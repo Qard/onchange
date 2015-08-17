@@ -1,6 +1,5 @@
 var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
-var colors = require('colors')
 
 module.exports = function (matches, command, args, verbose) {
   var pwd = process.cwd()
@@ -12,7 +11,7 @@ module.exports = function (matches, command, args, verbose) {
 
   // Notify the user what they are watching
   var watching = 'watching ' + matches.join(', ')
-  log('onchange '.cyan + watching)
+  log('onchange ' + watching)
 
   // Ignore node_modules folders, as they eat CPU like crazy
   matches.push('!**/node_modules/**')
@@ -28,13 +27,13 @@ module.exports = function (matches, command, args, verbose) {
     // However, skip if the last run is still active.
     watcher.on('all', function (event, file) {
       if (running){
-        log("\n" + "onchange".white.bgBlack + " " + "WARN".black.bgYellow + " " + "Skipped ".red + "Last action still running.\n")
+        log("onchange: Skipped Last action still running.")
         return
       }
       running = true
 
       // Log the event and the file affected
-      log('onchange '.cyan+ event + ' to ' + file.replace(pwd, ''))
+      log(event + ' to ' + file.replace(pwd, ''))
 
       // Generate argument strings from templates
       var filtered = tmpls.map(function (tmpl) {
@@ -48,9 +47,9 @@ module.exports = function (matches, command, args, verbose) {
 
       // Log the result and unlock
       proc.on('close', function (code) {
-        log('\n' + 'onchange '.cyan + 'completed with code ' + code)
+        log('onchange: completed with code ' + code)
         running = false
-        log('\n' + 'onchange '.cyan + watching)
+        log('onchange ' + watching)
       })
     })
   })

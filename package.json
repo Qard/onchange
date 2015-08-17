@@ -15,8 +15,7 @@
   "dependencies": {
     "chokidar": "~1.0.0",
     "cross-spawn": "~0.2.3",
-    "minimist": "~1.1.0",
-    "colors": "~1.1.2"
+    "minimist": "~1.1.0"
   },
   "main": "index.js",
   "devDependencies": {},
