@@ -2,14 +2,17 @@ var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
 var colors = require('colors')
 
-module.exports = function (matches, command, args, noise) {
+module.exports = function (matches, command, args, verbose) {
   var pwd = process.cwd()
+
+  // Logging
+  function log(){
+    if (verbose) console.log.apply(console, arguments)
+  }
 
   // Notify the user what they are watching
   var watching = 'watching ' + matches.join(', ')
-  if (noise){
-    console.log('onchange '.cyan + watching)
-  }
+  log('onchange '.cyan + watching)
 
   // Ignore node_modules folders, as they eat CPU like crazy
   matches.push('!**/node_modules/**')
@@ -25,17 +28,13 @@ module.exports = function (matches, command, args, noise) {
     // However, skip if the last run is still active.
     watcher.on('all', function (event, file) {
       if (running){
-        if (noise){
-          console.log("\n" + "onchange".white.bgBlack + " " + "WARN".black.bgYellow + " " + "Skipped ".red + "Last action still running.\n")
-        }
+        log("\n" + "onchange".white.bgBlack + " " + "WARN".black.bgYellow + " " + "Skipped ".red + "Last action still running.\n")
         return
       }
       running = true
 
       // Log the event and the file affected
-      if (noise){
-        console.log(event + ' to ' + file.replace(pwd, ''))
-      }
+      log('onchange '.cyan+ event + ' to ' + file.replace(pwd, ''))
 
       // Generate argument strings from templates
       var filtered = tmpls.map(function (tmpl) {
@@ -49,13 +48,9 @@ module.exports = function (matches, command, args, noise) {
 
       // Log the result and unlock
       proc.on('close', function (code) {
-        if (noise){
-          console.log('\n' + 'onchange '.cyan + 'completed with code ' + code)
-        }
+        log('\n' + 'onchange '.cyan + 'completed with code ' + code)
         running = false
-        if (noise){
-          console.log('\n' + 'onchange '.cyan + watching)
-        }
+        log('\n' + 'onchange '.cyan + watching)
       })
     })
   })

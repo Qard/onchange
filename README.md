@@ -12,9 +12,9 @@ Use glob patterns to watch file sets and run a command when anything is added, c
 
 You can match as many glob patterns as you like, just put the command you want to run after the -- and it will run any time a file matching any of the globs is added changed or deleted.
 
-If you want a more verbose output, include the '-d' flag. For Example:
+If you want a more verbose output, include the '-v' flag. For Example:
 
-	onchange 'app/**/*.js' 'test/**/*.js' -d -- npm test
+	onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
 
 ---
 
