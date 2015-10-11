@@ -16,6 +16,10 @@ If you want a more verbose output, include the `-v` flag. For Example:
 
 	onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
 
+To use the file that changed, use `{{changed}}` anywhere in the command after `--`.
+
+	onchange 'app/**/*.js' 'test/**/*.js' -- echo '{{changed}} was changed'
+
 ---
 
 ### Copyright (c) 2013 Stephen Belanger
