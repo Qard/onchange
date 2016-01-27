@@ -3,19 +3,21 @@ var onchange = require('./')
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
-  '--': true
+  '--': true,
+  boolean: ['v', 'i'],
+  alias: {
+    verbose: ['v'],
+    initial: ['i']
+  }
 })
 
 // Print usage info
-if ( ! argv._.length || argv.help) {
+if (!argv._.length || argv.help) {
   console.log('Usage:  onchange [file]... -- <command> [arg]...')
   process.exit()
 }
 
-var verbose = argv.v
-
 // Setup some storage variables
-var arg
 var matches = argv._
 
 // Build exclusion list
@@ -35,4 +37,4 @@ var args = argv['--']
 var command = args.shift()
 
 // Start watcher
-onchange(matches, command, args, verbose)
+onchange(matches, command, args, argv)
