@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 var onchange = require('./')
+var arrify = require('arrify')
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
   '--': true,
   boolean: ['v', 'i'],
+  string: ['e'],
   alias: {
     verbose: ['v'],
-    initial: ['i']
+    initial: ['i'],
+    exclude: ['e']
   }
 })
 
@@ -18,14 +21,14 @@ if (!argv._.length || argv.help) {
 }
 
 // Setup some storage variables
-var matches = argv._
+var matches = argv._.slice()
 
 // Build exclusion list
-var excludes = []
-if (Array.isArray(argv.exclude)) {
-  excludes = argv.exclude
-} else if (argv.exclude) {
-  excludes = [argv.exclude]
+var excludes = arrify(argv.exclude)
+
+// Ignore node_modules folders, as they eat CPU like crazy
+if (excludes.length === 0) {
+  excludes.push('**/node_modules/**')
 }
 
 excludes.forEach(function (exclude) {
@@ -33,7 +36,7 @@ excludes.forEach(function (exclude) {
 })
 
 // Shift first thing after to command and use the rest as args
-var args = argv['--']
+var args = argv['--'].slice()
 var command = args.shift()
 
 // Start watcher

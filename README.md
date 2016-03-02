@@ -16,13 +16,17 @@ If you want a more verbose output, include the `-v` flag. For example:
 
 	onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
 
-To use the file that changed, use `{{changed}}` anywhere in the command after `--`. For example:
+To use the event and file that changed, use `{{event}}` or `{{changed}}` anywhere in the command after `--`. For example:
 
-	onchange 'app/**/*.js' 'test/**/*.js' -- echo '{{changed}} was changed'
+	onchange '**/*.js' -- echo '{{changed}} was {{event}}'
 
 To execute the command on the first run, include the `-i` flag: For example:
 
-	onchange 'app/**/*.js' 'test/**/*.js' -i -- npm start
+	onchange **/*.js' -i -- npm start
+
+To exclude matches:
+
+	onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 
 ---
 

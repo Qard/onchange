@@ -6,12 +6,6 @@ module.exports = function (matches, command, args, opts) {
   var verbose = opts.verbose
   var proc
 
-  // Notify the user what they are watching
-  var watching = 'watching ' + matches.join(', ')
-
-  // Ignore node_modules folders, as they eat CPU like crazy
-  matches.push('!**/node_modules/**')
-
   // Convert arguments to templates
   var tmpls = args.map(tmpl)
   var watcher = chokidar.watch(matches)
@@ -21,12 +15,12 @@ module.exports = function (matches, command, args, opts) {
     if (verbose) console.log.apply(console, arguments)
   }
 
-  function start (file) {
+  function start (event, changed) {
     if (proc) {
       log('onchange: restarting process')
 
       proc.on('close', function () {
-        start(file)
+        start(event, changed)
       })
 
       proc.kill()
@@ -34,11 +28,9 @@ module.exports = function (matches, command, args, opts) {
       return
     }
 
-    log('onchange ' + watching)
-
     // Generate argument strings from templates
     var filtered = tmpls.map(function (tmpl) {
-      return tmpl({ changed: file })
+      return tmpl({ event: event, changed: changed })
     })
 
     proc = spawn(command, filtered, {
@@ -55,21 +47,21 @@ module.exports = function (matches, command, args, opts) {
     })
   }
 
-  watcher.on('ready', function () {
-    var running = false
+  log('onchange watching ' + matches.join(', '))
 
+  watcher.on('ready', function () {
     // For any change, creation or deletion, try to run.
     // Restart if the last run is still active.
     watcher.on('all', function (event, file) {
       // Log the event and the file affected
       log(event + ' to ' + file.replace(pwd, ''))
 
-      start(file)
+      start(event, file)
     })
   })
 
   if (opts.initial) {
-    start('')
+    start('', '')
   }
 }
 
@@ -80,9 +72,8 @@ module.exports = function (matches, command, args, opts) {
 // Double mustache template generator
 function tmpl (str) {
   return function (data) {
-    return str.replace(/{{([^{}]*)}}/g, function (a, expression) {
-      var fn = new Function('data','with(data){return '+expression+'}')
-      return fn(data)
+    return str.replace(/{{([^{}]+)}}/g, function (_, key) {
+      return data[key]
     })
   }
 }
