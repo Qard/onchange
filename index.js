@@ -5,6 +5,7 @@ module.exports = function (matches, command, args, opts) {
   var pwd = process.cwd()
   var verbose = opts.verbose
   var proc
+  var onclose
 
   // Convert arguments to templates
   var tmpls = args.map(tmpl)
@@ -21,12 +22,19 @@ module.exports = function (matches, command, args, opts) {
     if (proc) {
       log('restarting process')
 
-      proc.on('close', function () {
+      // Skip the previous listener.
+      if (onclose) {
+        proc.removeListener('close', onclose)
+      }
+
+      onclose = function () {
         start(event, changed)
-      })
+        onclose = null
+      }
+
+      proc.on('close', onclose)
 
       proc.kill()
-      proc = null
       return
     }
 
