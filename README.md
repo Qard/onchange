@@ -18,7 +18,7 @@ If you want a more verbose output, include the `-v` flag. For example:
 
 To use the event and file that changed, use `{{event}}` or `{{changed}}` anywhere in the command after `--`. For example:
 
-	onchange '**/*.js' -- echo '{{changed}} was {{event}}'
+	onchange '**/*.js' -- echo '{{event}} to {{changed}}'
 
 To execute the command on the first run, include the `-i` flag: For example:
 

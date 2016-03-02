@@ -11,13 +11,15 @@ module.exports = function (matches, command, args, opts) {
   var watcher = chokidar.watch(matches)
 
   // Logging
-  function log () {
-    if (verbose) console.log.apply(console, arguments)
+  function log (message) {
+    if (verbose) {
+      console.log('onchange:', message)
+    }
   }
 
   function start (event, changed) {
     if (proc) {
-      log('onchange: restarting process')
+      log('restarting process')
 
       proc.on('close', function () {
         start(event, changed)
@@ -27,6 +29,8 @@ module.exports = function (matches, command, args, opts) {
       proc = null
       return
     }
+
+    log('executing "' + command + '"')
 
     // Generate argument strings from templates
     var filtered = tmpls.map(function (tmpl) {
@@ -42,12 +46,12 @@ module.exports = function (matches, command, args, opts) {
       proc = null
 
       if (code != null) {
-        log('onchange: completed with code ' + code)
+        log('completed with code ' + code)
       }
     })
   }
 
-  log('onchange watching ' + matches.join(', '))
+  log('watching ' + matches.join(', '))
 
   watcher.on('ready', function () {
     // For any change, creation or deletion, try to run.
