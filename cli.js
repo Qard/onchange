@@ -16,7 +16,7 @@ var argv = require('minimist')(process.argv.slice(2), {
 
 // Print usage info
 if (!argv._.length || argv.help) {
-  console.log('Usage:  onchange [file]... -- <command> [arg]...')
+  console.log('Usage:  onchange [...file] -- <command> [arg]...')
   process.exit()
 }
 
@@ -38,6 +38,12 @@ excludes.forEach(function (exclude) {
 // Shift first thing after to command and use the rest as args
 var args = argv['--'].slice()
 var command = args.shift()
+
+if (!command) {
+  console.error('Remember to pass the command after "--":')
+  console.error('  onchange \'**/*.js\' -- echo \'{{changed}}\'')
+  process.exit(1)
+}
 
 // Start watcher
 onchange(matches, command, args, argv)
