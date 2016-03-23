@@ -2,6 +2,8 @@ var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
 
 module.exports = function (matches, command, args, opts) {
+  args = args || [];
+  opts = opts || {};
   var pwd = process.cwd()
   var verbose = opts.verbose
   var proc
