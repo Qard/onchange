@@ -2,15 +2,14 @@ var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
 
 module.exports = function (matches, command, args, opts) {
-  args = args || [];
-  opts = opts || {};
   var pwd = process.cwd()
-  var verbose = opts.verbose
+  var verbose = opts && opts.verbose
+  var initial = opts && opts.initial
   var proc
   var onclose
 
   // Convert arguments to templates
-  var tmpls = args.map(tmpl)
+  var tmpls = args ? args.map(tmpl) : []
   var watcher = chokidar.watch(matches)
 
   // Logging
@@ -74,7 +73,7 @@ module.exports = function (matches, command, args, opts) {
     })
   })
 
-  if (opts.initial) {
+  if (initial) {
     start('', '')
   }
 }
