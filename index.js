@@ -2,15 +2,16 @@ var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
 
 module.exports = function (matches, command, args, opts) {
-  var pwd = process.cwd()
   var verbose = opts && opts.verbose
   var initial = opts && opts.initial
+  var cwd = opts && opts.cwd || process.cwd()
+  var exclude = opts && opts.exclude || []
   var proc
   var onclose
 
   // Convert arguments to templates
   var tmpls = args ? args.map(tmpl) : []
-  var watcher = chokidar.watch(matches)
+  var watcher = chokidar.watch(matches, { cwd: cwd, ignored: exclude })
 
   // Logging
   function log (message) {
@@ -67,7 +68,7 @@ module.exports = function (matches, command, args, opts) {
     // Restart if the last run is still active.
     watcher.on('all', function (event, file) {
       // Log the event and the file affected
-      log(event + ' to ' + file.replace(pwd, ''))
+      log(event + ' to ' + file)
 
       start(event, file)
     })

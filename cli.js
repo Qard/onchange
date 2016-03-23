@@ -24,20 +24,22 @@ if (!argv._.length || argv.help) {
 var matches = argv._.slice()
 
 // Build exclusion list
-var excludes = arrify(argv.exclude)
+var exclude = arrify(argv.exclude)
 
 // Ignore node_modules folders, as they eat CPU like crazy
-if (excludes.length === 0) {
-  excludes.push('**/node_modules/**')
+if (exclude.length === 0) {
+  exclude.push('**/node_modules/**')
 }
-
-excludes.forEach(function (exclude) {
-  matches.push('!' + exclude)
-})
 
 // Shift first thing after to command and use the rest as args
 var args = argv['--'].slice()
 var command = args.shift()
+
+var options = {
+  exclude: exclude,
+  verbose: argv.verbose,
+  initial: argv.initial
+}
 
 if (!command) {
   console.error('Remember to pass the command after "--":')
@@ -46,4 +48,4 @@ if (!command) {
 }
 
 // Start watcher
-onchange(matches, command, args, argv)
+onchange(matches, command, args, options)
