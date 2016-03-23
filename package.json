@@ -19,7 +19,7 @@
     "minimist": "~1.2.0"
   },
   "main": "index.js",
-  "devDependencies": {},
+  "typings": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
