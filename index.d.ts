@@ -1,4 +1,4 @@
-declare function onchange (matches: string, command: string, args?: string[], options?: onchange.Options): void;
+declare function onchange (matches: string[], command: string, args?: string[], options?: onchange.Options): void;
 
 declare namespace onchange {
   export interface Options {
@@ -6,6 +6,9 @@ declare namespace onchange {
     cwd?: string[];
     initial?: boolean;
     verbose?: boolean;
+    wait?: boolean;
+    stdout?: any;
+    stderr?: any;
   }
 }
 

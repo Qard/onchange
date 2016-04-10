@@ -1,13 +1,21 @@
 var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
+var arrify = require('arrify')
 
-module.exports = function (matches, command, args, opts) {
-  var verbose = opts && opts.verbose
-  var initial = opts && opts.initial
-  var cwd = opts && opts.cwd || process.cwd()
-  var exclude = opts && opts.exclude || []
-  var proc
-  var onclose
+module.exports = function (match, command, args, opts) {
+  opts = opts || {}
+
+  var matches = arrify(match)
+  var verbose = !!opts.verbose
+  var initial = !!opts.initial
+  var wait = !!opts.wait
+  var cwd = opts.cwd || process.cwd()
+  var exclude = opts.exclude || []
+  var stdout = opts.stdout || process.stdout
+  var stderr = opts.stderr || process.stderr
+
+  var child
+  var pending
 
   // Convert arguments to templates
   var tmpls = args ? args.map(tmpl) : []
@@ -16,67 +24,76 @@ module.exports = function (matches, command, args, opts) {
   // Logging
   function log (message) {
     if (verbose) {
-      console.log('onchange:', message)
+      stdout.write('onchange: ' + message + '\n')
     }
   }
 
-  function start (event, changed) {
-    if (proc) {
-      log('restarting process')
+  function start (opts) {
+    // Set pending options for next execution.
+    if (child) {
+      pending = opts
 
-      // Skip the previous listener.
-      if (onclose) {
-        proc.removeListener('close', onclose)
+      if (wait) {
+        log('waiting for process and restarting')
+      } else {
+        log('killing process and restarting')
+        child.kill()
       }
 
-      onclose = function () {
-        start(event, changed)
-        onclose = null
-      }
-
-      proc.on('close', onclose)
-
-      proc.kill()
       return
     }
 
+    // Generate argument strings from templates.
+    var filtered = tmpls.map(function (tmpl) {
+      return tmpl(opts)
+    })
+
     log('executing "' + command + '"')
 
-    // Generate argument strings from templates
-    var filtered = tmpls.map(function (tmpl) {
-      return tmpl({ event: event, changed: changed })
+    child = spawn(command, filtered, {
+      cwd: cwd,
+      stdio: ['ignore', stdout, stderr]
     })
 
-    proc = spawn(command, filtered, {
-      stdio: ['ignore', process.stdout, process.stderr]
-    })
+    child.on('exit', function (code, signal) {
+      var arg = pending
 
-    // Log the result and unlock
-    proc.on('close', function (code) {
-      proc = null
+      child = null
+      pending = null
 
-      if (code != null) {
-        log('completed with code ' + code)
+      if (code == null) {
+        log('process exited with ' + signal)
+      } else {
+        log('process completed with code ' + code)
+      }
+
+      if (arg) {
+        start(arg)
       }
     })
   }
 
-  log('watching ' + matches.join(', '))
-
   watcher.on('ready', function () {
+    log('watching ' + matches.join(', '))
+
+    // Execute initial event, without changed options.
+    if (initial) {
+      start({ event: '', changed: '' })
+    }
+
     // For any change, creation or deletion, try to run.
     // Restart if the last run is still active.
-    watcher.on('all', function (event, file) {
+    watcher.on('all', function (event, changed) {
       // Log the event and the file affected
-      log(event + ' to ' + file)
+      log(event + ' to ' + changed)
 
-      start(event, file)
+      start({ event: event, changed: changed })
     })
   })
 
-  if (initial) {
-    start('', '')
-  }
+  watcher.on('error', function (error) {
+    log('watcher error: ' + error)
+  })
 }
 
 //
