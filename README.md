@@ -4,29 +4,47 @@ Use glob patterns to watch file sets and run a command when anything is added, c
 
 ## Install
 
-    npm install onchange
+```sh
+npm install onchange
+```
 
 ## Usage
 
-    onchange 'app/**/*.js' 'test/**/*.js' -- npm test
+```sh
+onchange 'app/**/*.js' 'test/**/*.js' -- npm test
+```
 
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
 
 If you want a more verbose output, include the `-v` flag. For example:
 
-	onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
+```sh
+onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
+```
 
 To use the event and file that changed, use `{{event}}` or `{{changed}}` anywhere in the command after `--`. For example:
 
-	onchange '**/*.js' -- echo '{{event}} to {{changed}}'
+```sh
+onchange '**/*.js' -- echo '{{event}} to {{changed}}'
+```
 
 To execute the command on the first run, include the `-i` flag: For example:
 
-	onchange **/*.js' -i -- npm start
+```sh
+onchange '**/*.js' -i -- npm start
+```
 
 To exclude matches:
 
-	onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
+```sh
+onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
+```
+
+To wait for the current process to exit between restarts:
+
+```sh
+onchange '**/*.js' -w -- npm test
+```
 
 ## TypeScript
 
