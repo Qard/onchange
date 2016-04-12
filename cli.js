@@ -5,18 +5,19 @@ var arrify = require('arrify')
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
   '--': true,
-  boolean: ['v', 'i'],
+  boolean: ['v', 'i', 'w'],
   string: ['e'],
   alias: {
     verbose: ['v'],
     initial: ['i'],
-    exclude: ['e']
+    exclude: ['e'],
+    wait: ['w']
   }
 })
 
 // Print usage info
 if (!argv._.length || argv.help) {
-  console.log('Usage:  onchange [...file] -- <command> [arg]...')
+  console.log('Usage: onchange [...file] -- <command> [...args]')
   process.exit()
 }
 
@@ -38,7 +39,8 @@ var command = args.shift()
 var options = {
   exclude: exclude,
   verbose: argv.verbose,
-  initial: argv.initial
+  initial: argv.initial,
+  wait: argv.wait
 }
 
 if (!command) {
