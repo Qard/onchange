@@ -3,7 +3,7 @@ declare function onchange (matches: string[], command: string, args?: string[], 
 declare namespace onchange {
   export interface Options {
     exclude?: string[];
-    cwd?: string[];
+    cwd?: string;
     initial?: boolean;
     verbose?: boolean;
     wait?: boolean;
