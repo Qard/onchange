@@ -1,6 +1,6 @@
 {
   "name": "onchange",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Use glob patterns to watch file sets and run a command when anything is added, changed or deleted.",
   "author": "Stephen Belanger <admin@stephenbelanger.com>",
   "keywords": [
