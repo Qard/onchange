@@ -1,3 +1,4 @@
+var resolve = require('path').resolve
 var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
 var arrify = require('arrify')
@@ -9,7 +10,7 @@ module.exports = function (match, command, args, opts) {
   var verbose = !!opts.verbose
   var initial = !!opts.initial
   var wait = !!opts.wait
-  var cwd = opts.cwd || process.cwd()
+  var cwd = opts.cwd ? resolve(opts.cwd) : process.cwd()
   var exclude = opts.exclude || []
   var stdout = opts.stdout || process.stdout
   var stderr = opts.stderr || process.stderr
