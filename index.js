@@ -23,11 +23,9 @@ module.exports = function (match, command, args, opts) {
   var watcher = chokidar.watch(matches, { cwd: cwd, ignored: exclude })
 
   // Logging
-  function log (message) {
-    if (verbose) {
-      stdout.write('onchange: ' + message + '\n')
-    }
-  }
+  var log = verbose ? function log (message) {
+    stdout.write('onchange: ' + message + '\n')
+  } : function () {}
 
   function start (opts) {
     // Set pending options for next execution.
