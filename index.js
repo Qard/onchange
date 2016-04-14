@@ -47,7 +47,7 @@ module.exports = function (match, command, args, opts) {
       return tmpl(opts)
     })
 
-    log('executing "' + command + '"')
+    log('executing "' + [command].concat(filtered).join(' ') + '"')
 
     child = spawn(command, filtered, {
       cwd: cwd,
