@@ -15,7 +15,7 @@
   "dependencies": {
     "arrify": "~1.0.1",
     "chokidar": "~1.4.3",
-    "cross-spawn": "~2.1.5",
+    "cross-spawn": "~4.0.0",
     "minimist": "~1.2.0"
   },
   "main": "index.js",
