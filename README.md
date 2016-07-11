@@ -14,6 +14,8 @@ npm install onchange
 onchange 'app/**/*.js' 'test/**/*.js' -- npm test
 ```
 
+NOTE: Windows users may need to use double quotes rather than single quotes. If used in an npm script, remember to escape the double quotes.
+
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
 
 If you want a more verbose output, include the `-v` flag. For example:
