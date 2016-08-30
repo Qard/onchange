@@ -16,7 +16,8 @@
     "arrify": "~1.0.1",
     "chokidar": "~1.5.1",
     "cross-spawn": "~4.0.0",
-    "minimist": "~1.2.0"
+    "minimist": "~1.2.0",
+    "tree-kill": "~1.1.0"
   },
   "main": "index.js",
   "typings": "index.d.ts",

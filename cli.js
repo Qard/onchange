@@ -6,13 +6,14 @@ var arrify = require('arrify')
 var argv = require('minimist')(process.argv.slice(2), {
   '--': true,
   boolean: ['v', 'i', 'w'],
-  string: ['e', 'c'],
+  string: ['e', 'c', 'killSignal'],
   alias: {
     verbose: ['v'],
     initial: ['i'],
     exclude: ['e'],
     wait: ['w'],
-    cwd: ['c']
+    cwd: ['c'],
+    delay: ['d']
   }
 })
 
@@ -42,7 +43,9 @@ var options = {
   verbose: argv.verbose,
   initial: argv.initial,
   wait: argv.wait,
-  cwd: argv.cwd
+  cwd: argv.cwd,
+  delay: argv.delay,
+  killSignal: argv.killSignal
 }
 
 if (!command) {

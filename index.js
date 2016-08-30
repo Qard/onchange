@@ -1,3 +1,4 @@
+var kill = require('tree-kill')
 var resolve = require('path').resolve
 var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
@@ -14,9 +15,12 @@ module.exports = function (match, command, args, opts) {
   var exclude = opts.exclude || []
   var stdout = opts.stdout || process.stdout
   var stderr = opts.stderr || process.stderr
+  var delay = Number(opts.delay) || 0
+  var killSignal = opts.killSignal || 'SIGTERM'
 
   var child
-  var pending
+  var pendingOpts
+  var pendingTimeout
 
   // Convert arguments to templates
   var tmpls = args ? args.map(tmpl) : []
@@ -27,18 +31,56 @@ module.exports = function (match, command, args, opts) {
     stdout.write('onchange: ' + message + '\n')
   } : function () {}
 
+  /**
+   * Run when the script exits.
+   */
+  function onexit () {
+    child = null
+
+    if (pendingOpts) {
+      if (pendingTimeout) {
+        return
+      }
+
+      if (delay > 0) {
+        pendingTimeout = setTimeout(function () {
+          cleanstart(pendingOpts)
+        }, delay)
+      } else {
+        cleanstart(pendingOpts)
+      }
+    }
+  }
+
+  /**
+   * Run on fresh start (after exists, clears pending args).
+   */
+  function cleanstart (args) {
+    clearTimeout(pendingTimeout)
+
+    pendingOpts = null
+    pendingTimeout = null
+
+    return start(args)
+  }
+
+  /**
+   * Start the script.
+   */
   function start (opts) {
     // Set pending options for next execution.
     if (child) {
-      pending = opts
+      pendingOpts = opts
 
       if (wait) {
         log('waiting for process and restarting')
       } else {
         log('killing process and restarting')
-        child.kill()
+        kill(child.pid, killSignal)
       }
+    }
 
+    if (pendingTimeout || pendingOpts) {
       return
     }
 
@@ -55,20 +97,13 @@ module.exports = function (match, command, args, opts) {
     })
 
     child.on('exit', function (code, signal) {
-      var arg = pending
-
-      child = null
-      pending = null
-
       if (code == null) {
         log('process exited with ' + signal)
       } else {
         log('process completed with code ' + code)
       }
 
-      if (arg) {
-        start(arg)
-      }
+      return onexit()
     })
   }
 
