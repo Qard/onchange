@@ -48,6 +48,12 @@ To wait for the current process to exit between restarts:
 onchange '**/*.js' -w -- npm test
 ```
 
+To set the amount of delay (in ms) between process restarts:
+
+```sh
+onchange '**/*.js' -d 1000 -- npm start
+```
+
 ## TypeScript
 
 Includes [typings](index.d.ts) for TypeScript users.
