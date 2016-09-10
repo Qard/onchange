@@ -21,6 +21,7 @@ module.exports = function (match, command, args, opts) {
   var child
   var pendingOpts
   var pendingTimeout
+  var pendingExit = false
 
   // Convert arguments to templates
   var tmpls = args ? args.map(tmpl) : []
@@ -36,10 +37,11 @@ module.exports = function (match, command, args, opts) {
    */
   function onexit () {
     child = null
+    pendingExit = false
 
     if (pendingOpts) {
       if (pendingTimeout) {
-        return
+        clearTimeout(pendingTimeout)
       }
 
       if (delay > 0) {
@@ -56,8 +58,6 @@ module.exports = function (match, command, args, opts) {
    * Run on fresh start (after exists, clears pending args).
    */
   function cleanstart (args) {
-    clearTimeout(pendingTimeout)
-
     pendingOpts = null
     pendingTimeout = null
 
@@ -72,11 +72,15 @@ module.exports = function (match, command, args, opts) {
     if (child) {
       pendingOpts = opts
 
-      if (wait) {
-        log('waiting for process and restarting')
-      } else {
-        log('killing process and restarting')
-        kill(child.pid, killSignal)
+      if (!pendingExit) {
+        if (wait) {
+          log('waiting for process and restarting')
+        } else {
+          log('killing process ' + child.pid + ' and restarting')
+          kill(child.pid, killSignal)
+        }
+
+        pendingExit = true
       }
     }
 
