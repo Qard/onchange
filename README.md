@@ -74,6 +74,16 @@ Use polling to monitor for changes. Omitting the interval will default to 100ms.
 onchange '**/*.js' -p -- npm test
 ```
 
+### Outpipe (`-o`, `--outpipe`)
+
+Shell command to execute every change:
+
+```sh
+onchange 'src/**/*.js' -o '> .change' -- echo '{{event}} to {{changed}}'
+```
+
+**P.S.** When a command is used with `--outpipe`, the `stdout` from the command will be piped into `outpipe`.
+
 ## TypeScript
 
 Includes [types](index.d.ts) for TypeScript users.

@@ -1,8 +1,10 @@
 var kill = require('tree-kill')
 var resolve = require('path').resolve
+var exec = require('child_process').exec
 var spawn = require('cross-spawn').spawn
 var chokidar = require('chokidar')
 var arrify = require('arrify')
+var echo = process.execPath + ' ' + resolve(__dirname, 'echo.js')
 
 module.exports = function (match, command, args, opts) {
   opts = opts || {}
@@ -13,8 +15,14 @@ module.exports = function (match, command, args, opts) {
   var stderr = opts.stderr || process.stderr
   var delay = Number(opts.delay) || 0
   var killSignal = opts.killSignal || 'SIGTERM'
+  var outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
 
-  var child
+  if (!command && !outpipe) {
+    throw new TypeError('Expected "command" and/or "outpipe" to be specified')
+  }
+
+  var childOutpipe
+  var childCommand
   var pendingOpts
   var pendingTimeout
   var pendingExit = false
@@ -37,7 +45,10 @@ module.exports = function (match, command, args, opts) {
    * Run when the script exits.
    */
   function onexit () {
-    child = null
+    if (childOutpipe || childCommand) {
+      return
+    }
+
     pendingExit = false
 
     if (pendingOpts) {
@@ -70,15 +81,22 @@ module.exports = function (match, command, args, opts) {
    */
   function start (opts) {
     // Set pending options for next execution.
-    if (child) {
+    if (childOutpipe || childCommand) {
       pendingOpts = opts
 
       if (!pendingExit) {
         if (opts.wait) {
           log('waiting for process and restarting')
         } else {
-          log('killing process ' + child.pid + ' and restarting')
-          kill(child.pid, killSignal)
+          if (childCommand) {
+            log('killing command ' + childCommand.pid + ' and restarting')
+            kill(childCommand.pid, killSignal)
+          }
+
+          if (childOutpipe) {
+            log('killing outpipe ' + childOutpipe.pid + ' and restarting')
+            kill(childOutpipe.pid, killSignal)
+          }
         }
 
         pendingExit = true
@@ -89,27 +107,52 @@ module.exports = function (match, command, args, opts) {
       return
     }
 
-    // Generate argument strings from templates.
-    var filtered = tmpls.map(function (tmpl) {
-      return tmpl(opts)
-    })
+    if (outpipe) {
+      var filtered = outpipe(opts)
 
-    log('executing "' + [command].concat(filtered).join(' ') + '"')
+      log('executing outpipe "' + filtered + '"')
 
-    child = spawn(command, filtered, {
-      cwd: cwd,
-      stdio: ['ignore', stdout, stderr]
-    })
+      childOutpipe = exec(filtered, {
+        cwd: cwd
+      })
 
-    child.on('exit', function (code, signal) {
-      if (code == null) {
-        log('process exited with ' + signal)
-      } else {
-        log('process completed with code ' + code)
-      }
+      // Must pipe stdout and stderr.
+      childOutpipe.stdout.pipe(stdout)
+      childOutpipe.stderr.pipe(stderr)
 
-      return onexit()
-    })
+      childOutpipe.on('exit', function (code, signal) {
+        log('outpipe ' + (code == null ? 'exited with ' + signal : 'completed with code ' + code))
+
+        childOutpipe = null
+
+        return onexit()
+      })
+    }
+
+    if (command) {
+      // Generate argument strings from templates.
+      var filtered = tmpls.map(function (tmpl) {
+        return tmpl(opts)
+      })
+
+      log('executing command "' + [command].concat(filtered).join(' ') + '"')
+
+      childCommand = spawn(command, filtered, {
+        cwd: cwd,
+        stdio: ['ignore', childOutpipe ? childOutpipe.stdin : stdout, stderr]
+      })
+
+      childCommand.on('exit', function (code, signal) {
+        log('command ' + (code == null ? 'exited with ' + signal : 'completed with code ' + code))
+
+        childCommand = null
+
+        return onexit()
+      })
+    } else {
+      // No data to write to `outpipe`.
+      childOutpipe.stdin.end()
+    }
   }
 
   watcher.on('ready', function () {
@@ -135,15 +178,22 @@ module.exports = function (match, command, args, opts) {
   })
 }
 
-//
-// Helpers
-//
-
-// Double mustache template generator
+// Double mustache template generator.
 function tmpl (str) {
   return function (data) {
     return str.replace(/{{([^{}]+)}}/g, function (_, key) {
       return data[key]
     })
   }
+}
+
+// Template generator for `outpipe` option.
+function outpipetmpl (str) {
+  var value = str.trim()
+
+  if (value.charAt(0) === '|' || value.charAt(0) === '>') {
+    return tmpl(echo + ' ' + value)
+  }
+
+  return tmpl(value)
 }
