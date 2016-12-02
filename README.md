@@ -18,35 +18,47 @@ NOTE: Windows users may need to use double quotes rather than single quotes. If 
 
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
 
-If you want a more verbose output, include the `-v` flag. For example:
-
-```sh
-onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
-```
-
 To use the event and file that changed, use `{{event}}` or `{{changed}}` anywhere in the command after `--`. For example:
 
 ```sh
 onchange '**/*.js' -- echo '{{event}} to {{changed}}'
 ```
 
-To execute the command on the first run, include the `-i` flag: For example:
+## Options
+
+### Verbose (`-v`, `--verbose`)
+
+Enable if you want verbose logging from `onchange` (useful for debugging). For example:
+
+```sh
+onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
+```
+
+### Initial (`-i`, `--initial`)
+
+To execute the command on the first run (no change), include the `-i` flag: For example:
 
 ```sh
 onchange '**/*.js' -i -- npm start
 ```
 
-To exclude matches (`**/node_modules/**` is the default, use `--no-exclude` to exclude nothing by default):
+### Exclude (`-e`, `--exclude`)
+
+To exclude matches (`**/node_modules/**` is excluded by default, use `--no-exclude` to disable):
 
 ```sh
 onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 ```
+
+### Wait (`-w`, `--wait`)
 
 To wait for the current process to exit between restarts:
 
 ```sh
 onchange '**/*.js' -w -- npm test
 ```
+
+### Delay (`-d`, `--delay`)
 
 To set the amount of delay (in ms) between process restarts:
 
@@ -56,7 +68,7 @@ onchange '**/*.js' -d 1000 -- npm start
 
 ## TypeScript
 
-Includes [typings](index.d.ts) for TypeScript users.
+Includes [types](index.d.ts) for TypeScript users.
 
 ---
 
