@@ -27,10 +27,10 @@ if (!argv._.length || argv.help) {
 var matches = argv._.slice()
 
 // Build exclusion list
-var exclude = arrify(argv.exclude)
+var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
 
 // Ignore node_modules folders, as they eat CPU like crazy
-if (exclude.length === 0) {
+if (argv.exclude !== false && exclude.length === 0) {
   exclude.push('**/node_modules/**')
 }
 
@@ -47,6 +47,8 @@ var options = {
   delay: argv.delay,
   killSignal: argv.killSignal
 }
+
+console.log(options)
 
 if (!command) {
   console.error('Remember to pass the command after "--":')
