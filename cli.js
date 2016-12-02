@@ -15,7 +15,8 @@ var argv = require('minimist')(process.argv.slice(2), {
     wait: ['w'],
     cwd: ['c'],
     delay: ['d'],
-    poll: ['p']
+    poll: ['p'],
+    outpipe: ['o']
   },
   default: {
     exclude: '**/node_modules/**'
@@ -46,12 +47,11 @@ var options = {
   cwd: argv.cwd,
   delay: argv.delay,
   poll: argv.poll,
-  killSignal: argv.killSignal
+  killSignal: argv.killSignal,
+  outpipe: argv.outpipe
 }
 
-console.log(options)
-
-if (!command) {
+if (!command && !options.outpipe) {
   console.error('Remember to pass the command after "--":')
   console.error('  onchange \'**/*.js\' -- echo \'{{changed}}\'')
   process.exit(1)

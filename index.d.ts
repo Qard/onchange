@@ -11,6 +11,7 @@ declare namespace onchange {
     delay?: number;
     stdout?: any;
     stderr?: any;
+    outpipe?: string;
   }
 }
 
