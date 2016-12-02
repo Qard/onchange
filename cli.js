@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 var onchange = require('./')
 var arrify = require('arrify')
 
@@ -14,6 +15,9 @@ var argv = require('minimist')(process.argv.slice(2), {
     wait: ['w'],
     cwd: ['c'],
     delay: ['d']
+  },
+  default: {
+    exclude: '**/node_modules/**'
   }
 })
 
@@ -28,11 +32,6 @@ var matches = argv._.slice()
 
 // Build exclusion list
 var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
-
-// Ignore node_modules folders, as they eat CPU like crazy
-if (argv.exclude !== false && exclude.length === 0) {
-  exclude.push('**/node_modules/**')
-}
 
 // Shift first thing after to command and use the rest as args
 var args = argv['--'].slice()
