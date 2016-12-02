@@ -5,7 +5,7 @@ var arrify = require('arrify')
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
   '--': true,
-  boolean: ['v', 'i', 'w'],
+  boolean: ['v', 'i', 'w', 'allow-node-modules'],
   string: ['e', 'c', 'killSignal'],
   alias: {
     verbose: ['v'],
@@ -30,7 +30,7 @@ var matches = argv._.slice()
 var exclude = arrify(argv.exclude)
 
 // Ignore node_modules folders, as they eat CPU like crazy
-if (exclude.length === 0) {
+if (exclude.length === 0 && argv['allow-node-modules']) {
   exclude.push('**/node_modules/**')
 }
 

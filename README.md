@@ -42,6 +42,12 @@ To exclude matches:
 onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 ```
 
+By default, all files in the `node_modules` directory will be excluded. To override this use `--allow-node-modules` or pass any exclude argument:
+
+```sh
+onchange 'node_modules/myWatchedPackage/**/*.js' --allow-node-modules -- npm run docs
+```
+
 To wait for the current process to exit between restarts:
 
 ```sh
