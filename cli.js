@@ -14,7 +14,8 @@ var argv = require('minimist')(process.argv.slice(2), {
     exclude: ['e'],
     wait: ['w'],
     cwd: ['c'],
-    delay: ['d']
+    delay: ['d'],
+    poll: ['p']
   },
   default: {
     exclude: '**/node_modules/**'
@@ -44,6 +45,7 @@ var options = {
   wait: argv.wait,
   cwd: argv.cwd,
   delay: argv.delay,
+  poll: argv.poll,
   killSignal: argv.killSignal
 }
 

@@ -8,11 +8,7 @@ module.exports = function (match, command, args, opts) {
   opts = opts || {}
 
   var matches = arrify(match)
-  var verbose = !!opts.verbose
-  var initial = !!opts.initial
-  var wait = !!opts.wait
   var cwd = opts.cwd ? resolve(opts.cwd) : process.cwd()
-  var exclude = opts.exclude || []
   var stdout = opts.stdout || process.stdout
   var stderr = opts.stderr || process.stderr
   var delay = Number(opts.delay) || 0
@@ -25,10 +21,15 @@ module.exports = function (match, command, args, opts) {
 
   // Convert arguments to templates
   var tmpls = args ? args.map(tmpl) : []
-  var watcher = chokidar.watch(matches, { cwd: cwd, ignored: exclude })
+  var watcher = chokidar.watch(matches, {
+    cwd: cwd,
+    ignored: opts.exclude || [],
+    usePolling: opts.poll === true || typeof opts.poll === 'number',
+    interval: typeof opts.poll === 'number' ? opts.poll : undefined
+  })
 
   // Logging
-  var log = verbose ? function log (message) {
+  var log = opts.verbose ? function log (message) {
     stdout.write('onchange: ' + message + '\n')
   } : function () {}
 
@@ -73,7 +74,7 @@ module.exports = function (match, command, args, opts) {
       pendingOpts = opts
 
       if (!pendingExit) {
-        if (wait) {
+        if (opts.wait) {
           log('waiting for process and restarting')
         } else {
           log('killing process ' + child.pid + ' and restarting')
@@ -115,7 +116,7 @@ module.exports = function (match, command, args, opts) {
     log('watching ' + matches.join(', '))
 
     // Execute initial event, without changed options.
-    if (initial) {
+    if (opts.initial) {
       start({ event: '', changed: '' })
     }
 
