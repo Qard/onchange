@@ -66,6 +66,14 @@ To set the amount of delay (in ms) between process restarts:
 onchange '**/*.js' -d 1000 -- npm start
 ```
 
+### Poll (`-p`, `--poll`)
+
+Use polling to monitor for changes. Omitting the interval will default to 100ms. This option is useful if you're watching an NFS volume.
+
+```sh
+onchange '**/*.js' -p -- npm test
+```
+
 ## TypeScript
 
 Includes [types](index.d.ts) for TypeScript users.

@@ -7,6 +7,8 @@ declare namespace onchange {
     initial?: boolean;
     verbose?: boolean;
     wait?: boolean;
+    poll?: boolean | number;
+    delay?: number;
     stdout?: any;
     stderr?: any;
   }
