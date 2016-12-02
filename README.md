@@ -36,7 +36,7 @@ To execute the command on the first run, include the `-i` flag: For example:
 onchange '**/*.js' -i -- npm start
 ```
 
-To exclude matches:
+To exclude matches (`**/node_modules/**` is the default, use `--no-exclude` to exclude nothing by default):
 
 ```sh
 onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
