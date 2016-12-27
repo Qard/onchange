@@ -10,6 +10,8 @@ module.exports = function (match, command, args, opts) {
   opts = opts || {}
 
   var matches = arrify(match)
+  var initial = !!opts.initial
+  var wait = !!opts.wait
   var cwd = opts.cwd ? resolve(opts.cwd) : process.cwd()
   var stdout = opts.stdout || process.stdout
   var stderr = opts.stderr || process.stderr
@@ -85,7 +87,7 @@ module.exports = function (match, command, args, opts) {
       pendingOpts = opts
 
       if (!pendingExit) {
-        if (opts.wait) {
+        if (wait) {
           log('waiting for process and restarting')
         } else {
           if (childCommand) {
@@ -159,7 +161,7 @@ module.exports = function (match, command, args, opts) {
     log('watching ' + matches.join(', '))
 
     // Execute initial event, without changed options.
-    if (opts.initial) {
+    if (initial) {
       start({ event: '', changed: '' })
     }
 
