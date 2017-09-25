@@ -1,5 +1,7 @@
 # onchange
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Qard/onchange.svg)](https://greenkeeper.io/)
+
 Use glob patterns to watch file sets and run a command when anything is added, changed or deleted.
 
 ## Install
