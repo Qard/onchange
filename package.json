@@ -14,10 +14,10 @@
   "license": "MIT",
   "dependencies": {
     "arrify": "~1.0.1",
-    "chokidar": "~1.6.0",
-    "cross-spawn": "~4.0.0",
+    "chokidar": "~1.7.0",
+    "cross-spawn": "~5.1.0",
     "minimist": "~1.2.0",
-    "tree-kill": "~1.1.0"
+    "tree-kill": "~1.2.0"
   },
   "main": "index.js",
   "typings": "index.d.ts",
