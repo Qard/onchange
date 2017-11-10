@@ -16,7 +16,8 @@ var argv = require('minimist')(process.argv.slice(2), {
     cwd: ['c'],
     delay: ['d'],
     poll: ['p'],
-    outpipe: ['o']
+    outpipe: ['o'],
+    filter: ['f']
   },
   default: {
     exclude: '**/node_modules/**'
@@ -48,7 +49,11 @@ var options = {
   delay: argv.delay,
   poll: argv.poll,
   killSignal: argv.killSignal,
-  outpipe: argv.outpipe
+  outpipe: argv.outpipe,
+}
+
+if (argv.filter) {
+    options.filter = Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/);
 }
 
 if (!command && !options.outpipe) {
