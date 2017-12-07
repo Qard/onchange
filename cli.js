@@ -32,16 +32,11 @@ if (!argv._.length || argv.help) {
 
 // Setup some storage variables
 var matches = argv._.slice()
-
-// Build exclusion list
-var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
-
-// Shift first thing after to command and use the rest as args
 var args = argv['--'].slice()
 var command = args.shift()
 
 var options = {
-  exclude: exclude,
+  exclude: typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude),
   verbose: argv.verbose,
   initial: argv.initial,
   wait: argv.wait,
@@ -50,6 +45,7 @@ var options = {
   poll: argv.poll,
   killSignal: argv.killSignal,
   outpipe: argv.outpipe,
+  filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/))
 }
 
 if (argv.filter) {
