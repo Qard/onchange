@@ -86,6 +86,27 @@ onchange 'src/**/*.js' -o '> .change' -- echo '{{event}} to {{changed}}'
 
 **P.S.** When a command is used with `--outpipe`, the `stdout` from the command will be piped into `outpipe`.
 
+### Filter (`-f`, `--filter`)
+
+By default, onchange watch for all events from [chokidar](https://github.com/paulmillr/chokidar#methods--events). Use
+this option to watch only for events you need:
+
+```sh
+onchange '**/*.js' -f add -f change -- npm start
+```
+
+You can separate events to listen with comas if you prefer:
+
+```sh
+onchange '**/*.js' -f add,change -- npm start
+```
+
+Or with spaces:
+
+```sh
+onchange '**/*.js' -f 'add change' -- npm start
+```
+
 ## TypeScript
 
 Includes [types](index.d.ts) for TypeScript users.

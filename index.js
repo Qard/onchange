@@ -18,6 +18,7 @@ module.exports = function (match, command, args, opts) {
   var delay = Number(opts.delay) || 0
   var killSignal = opts.killSignal || 'SIGTERM'
   var outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
+  var filter = opts.filter || []
 
   if (!command && !outpipe) {
     throw new TypeError('Expected "command" and/or "outpipe" to be specified')
@@ -168,6 +169,8 @@ module.exports = function (match, command, args, opts) {
     // For any change, creation or deletion, try to run.
     // Restart if the last run is still active.
     watcher.on('all', function (event, changed) {
+      if (filter.length && filter.indexOf(event) === -1) return
+
       // Log the event and the file affected
       log(event + ' to ' + changed)
 

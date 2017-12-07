@@ -12,6 +12,7 @@ declare namespace onchange {
     stdout?: any;
     stderr?: any;
     outpipe?: string;
+    filter?: string[];
   }
 }
 
