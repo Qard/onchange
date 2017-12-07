@@ -48,10 +48,6 @@ var options = {
   filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/))
 }
 
-if (argv.filter) {
-    options.filter = Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/);
-}
-
 if (!command && !options.outpipe) {
   console.error('Remember to pass the command after "--":')
   console.error('  onchange \'**/*.js\' -- echo \'{{changed}}\'')
