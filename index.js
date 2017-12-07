@@ -18,7 +18,7 @@ module.exports = function (match, command, args, opts) {
   var delay = Number(opts.delay) || 0
   var killSignal = opts.killSignal || 'SIGTERM'
   var outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
-  var filter = opts.filter || ['all'];
+  var filter = opts.filter || []
 
   if (!command && !outpipe) {
     throw new TypeError('Expected "command" and/or "outpipe" to be specified')
