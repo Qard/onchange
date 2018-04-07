@@ -111,6 +111,10 @@ onchange '**/*.js' -f 'add change' -- npm start
 
 Includes [types](index.d.ts) for TypeScript users.
 
+## Related
+
+* [cli-error-notifier](https://github.com/micromata/cli-error-notifier) - Send native desktop notifications if a command exits with an exit code other than `0`.
+
 ---
 
 ### Copyright (c) 2013 Stephen Belanger
