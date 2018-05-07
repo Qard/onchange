@@ -3,4 +3,5 @@ node_js:
   - 8
   - 7
   - 6
+  - 10
 sudo: false # allows for faster builds
