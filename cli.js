@@ -6,7 +6,7 @@ var arrify = require('arrify')
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
   '--': true,
-  boolean: ['v', 'i', 'w'],
+  boolean: ['v', 'i', 'w', 'await-write-finish'],
   string: ['e', 'c', 'killSignal'],
   alias: {
     verbose: ['v'],
@@ -45,7 +45,8 @@ var options = {
   poll: argv.poll,
   killSignal: argv.killSignal,
   outpipe: argv.outpipe,
-  filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/))
+  filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/)),
+  awaitWriteFinish: argv['await-write-finish']
 }
 
 if (!command && !options.outpipe) {

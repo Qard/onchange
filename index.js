@@ -19,6 +19,8 @@ module.exports = function (match, command, args, opts) {
   var killSignal = opts.killSignal || 'SIGTERM'
   var outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
   var filter = opts.filter || []
+  var awaitWriteFinish = !!opts.awaitWriteFinish
+
 
   if (!command && !outpipe) {
     throw new TypeError('Expected "command" and/or "outpipe" to be specified')
@@ -36,7 +38,8 @@ module.exports = function (match, command, args, opts) {
     cwd: cwd,
     ignored: opts.exclude || [],
     usePolling: opts.poll === true || typeof opts.poll === 'number',
-    interval: typeof opts.poll === 'number' ? opts.poll : undefined
+    interval: typeof opts.poll === 'number' ? opts.poll : undefined,
+    awaitWriteFinish: awaitWriteFinish
   })
 
   // Logging
