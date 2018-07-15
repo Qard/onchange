@@ -66,12 +66,12 @@ To set the amount of delay (in ms) between process restarts:
 onchange '**/*.js' -d 1000 -- npm start
 ```
 
-### Await Write Finish (`-F`, `--await-write-finish`)
+### Await Write Finish (`--await-write-finish`)
 
 To hold the events until the size does not change for a configurable amount of time:
 
 ```sh
-onchange '**/*.js' -F -- npm test
+onchange '**/*.js' --await-write-finish -- npm test
 ```
 
 ### Poll (`-p`, `--poll`)
