@@ -13,16 +13,18 @@
   },
   "license": "MIT",
   "dependencies": {
-    "arrify": "~1.0.1",
-    "chokidar": "~2.0.0",
-    "cross-spawn": "~6.0.0",
-    "minimist": "~1.2.0",
-    "tree-kill": "~1.2.0"
+    "@blakeembrey/deque": "^1.0.3",
+    "arrify": "^1.0.1",
+    "chokidar": "^2.0.0",
+    "cross-spawn": "^6.0.0",
+    "minimist": "^1.2.0",
+    "tree-kill": "^1.2.0"
   },
   "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "test": "node test/index.js"
+    "test": "echo \"npm run test:local\"",
+    "test:local": "node test/queue.js && node test/concurrent.js"
   },
   "repository": {
     "type": "git",

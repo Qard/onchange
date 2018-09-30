@@ -1,159 +1,62 @@
-var kill = require('tree-kill')
-var resolve = require('path').resolve
-var exec = require('child_process').exec
-var spawn = require('cross-spawn').spawn
-var chokidar = require('chokidar')
-var arrify = require('arrify')
-var echo = process.execPath + ' ' + resolve(__dirname, 'echo.js')
+const treeKill = require('tree-kill')
+const { resolve } = require('path')
+const { exec } = require('child_process')
+const { spawn } = require('cross-spawn')
+const chokidar = require('chokidar')
+const arrify = require('arrify')
+const { Deque } = require('@blakeembrey/deque')
 
-module.exports = function (match, command, args, opts) {
-  opts = opts || {}
+const ECHO_CMD = `${process.execPath} ${resolve(__dirname, 'echo.js')}`
 
-  var matches = arrify(match)
-  var initial = !!opts.initial
-  var wait = !!opts.wait
-  var cwd = opts.cwd ? resolve(opts.cwd) : process.cwd()
-  var stdout = opts.stdout || process.stdout
-  var stderr = opts.stderr || process.stderr
-  var delay = Number(opts.delay) || 0
-  var killSignal = opts.killSignal || 'SIGTERM'
-  var outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
-  var filter = opts.filter || []
-  var awaitWriteFinish = !!opts.awaitWriteFinish
+/**
+ * Export `onchange` function.
+ */
+module.exports = onchange
 
-
-  if (!command && !outpipe) {
-    throw new TypeError('Expected "command" and/or "outpipe" to be specified')
+/**
+ * Execute a "job" on each change event.
+ */
+class Job {
+  constructor (command, args, outpipe, options) {
+    this.command = command
+    this.args = args
+    this.outpipe = outpipe
+    this.options = options
   }
 
-  var childOutpipe
-  var childCommand
-  var pendingOpts
-  var pendingTimeout
-  var pendingExit = false
+  start (cwd, log, stdout, stderr, onexit) {
+    if (this.outpipe) {
+      const cmd = this.outpipe(opts)
 
-  // Convert arguments to templates
-  var tmpls = args ? args.map(tmpl) : []
-  var watcher = chokidar.watch(matches, {
-    cwd: cwd,
-    ignored: opts.exclude || [],
-    usePolling: opts.poll === true || typeof opts.poll === 'number',
-    interval: typeof opts.poll === 'number' ? opts.poll : undefined,
-    awaitWriteFinish: awaitWriteFinish
-  })
+      log(`executing outpipe "${cmd}"`)
 
-  // Logging
-  var log = opts.verbose ? function log (message) {
-    stdout.write('onchange: ' + message + '\n')
-  } : function () {}
-
-  /**
-   * Run when the script exits.
-   */
-  function onexit () {
-    if (childOutpipe || childCommand) {
-      return
-    }
-
-    pendingExit = false
-
-    if (pendingOpts) {
-      if (pendingTimeout) {
-        clearTimeout(pendingTimeout)
-      }
-
-      if (delay > 0) {
-        pendingTimeout = setTimeout(function () {
-          cleanstart(pendingOpts)
-        }, delay)
-      } else {
-        cleanstart(pendingOpts)
-      }
-    }
-  }
-
-  /**
-   * Run on fresh start (after exists, clears pending args).
-   */
-  function cleanstart (args) {
-    pendingOpts = null
-    pendingTimeout = null
-
-    return start(args)
-  }
-
-  /**
-   * Start the script.
-   */
-  function start (opts) {
-    // Set pending options for next execution.
-    if (childOutpipe || childCommand) {
-      pendingOpts = opts
-
-      if (!pendingExit) {
-        if (wait) {
-          log('waiting for process and restarting')
-        } else {
-          if (childCommand) {
-            log('killing command ' + childCommand.pid + ' and restarting')
-            kill(childCommand.pid, killSignal)
-          }
-
-          if (childOutpipe) {
-            log('killing outpipe ' + childOutpipe.pid + ' and restarting')
-            kill(childOutpipe.pid, killSignal)
-          }
-        }
-
-        pendingExit = true
-      }
-    }
-
-    if (pendingTimeout || pendingOpts) {
-      return
-    }
-
-    if (outpipe) {
-      var filtered = outpipe(opts)
-
-      log('executing outpipe "' + filtered + '"')
-
-      childOutpipe = exec(filtered, {
-        cwd: cwd
-      })
+      this.childOutpipe = exec(cmd, { cwd })
 
       // Must pipe stdout and stderr.
-      childOutpipe.stdout.pipe(stdout)
-      childOutpipe.stderr.pipe(stderr)
+      this.childOutpipe.stdout.pipe(stdout)
+      this.childOutpipe.stderr.pipe(stderr)
 
-      childOutpipe.on('exit', function (code, signal) {
-        log('outpipe ' + (code == null ? 'exited with ' + signal : 'completed with code ' + code))
-
-        childOutpipe = null
-
-        return onexit()
+      this.childOutpipe.on('exit', (code, signal) => {
+        log(`outpipe ${exitmsg(code, signal)}`)
+        this.childOutpipe = undefined
+        if (!this.childCommand) return onexit()
       })
     }
 
-    if (command) {
+    if (this.command) {
       // Generate argument strings from templates.
-      var filtered = tmpls.map(function (tmpl) {
-        return tmpl(opts)
-      })
+      const cmd = this.args.map(tmpl => tmpl(this.options))
+      const stdio = ['ignore', this.childOutpipe ? this.childOutpipe.stdin : stdout, stderr]
 
-      log('executing command "' + [command].concat(filtered).join(' ') + '"')
+      log(`executing command "${[this.command].concat(cmd).join(' ')}"`)
 
-      childCommand = spawn(command, filtered, {
-        cwd: cwd,
-        stdio: ['ignore', childOutpipe ? childOutpipe.stdin : stdout, stderr]
-      })
+      // Spawn child command. If `outpipe`, pipe `stdout` through `outpipe`.
+      this.childCommand = spawn(this.command, cmd, { cwd, stdio })
 
-      childCommand.on('exit', function (code, signal) {
-        log('command ' + (code == null ? 'exited with ' + signal : 'completed with code ' + code))
-
-        childCommand = null
-
-        return onexit()
+      this.childCommand.on('exit', function (code, signal) {
+        log(`command ${exitmsg(code, signal)}`)
+        this.childCommand = undefined
+        if (!this.childOutpipe) return onexit()
       })
     } else {
       // No data to write to `outpipe`.
@@ -161,29 +64,115 @@ module.exports = function (match, command, args, opts) {
     }
   }
 
-  watcher.on('ready', function () {
-    log('watching ' + matches.join(', '))
-
-    // Execute initial event, without changed options.
-    if (initial) {
-      start({ event: '', changed: '' })
+  kill (log, killSignal) {
+    if (this.childOutpipe) {
+      log(`killing outpipe ${this.childOutpipe.pid}`)
+      treeKill(this.childOutpipe.pid, killSignal)
     }
 
+    if (this.childCommand) {
+      log(`killing command ${this.childOutpipe.pid}`)
+      treeKill(this.childCommand.pid, killSignal)
+    }
+  }
+}
+
+function onchange (match, command, rawargs, opts = {}) {
+  const matches = arrify(match)
+  const ready = opts.ready || (() => undefined)
+  const initial = !!opts.initial
+  const kill = !!opts.kill
+  const cwd = opts.cwd ? resolve(opts.cwd) : process.cwd()
+  const stdout = opts.stdout || process.stdout
+  const stderr = opts.stderr || process.stderr
+  const delay = Math.max(opts.delay | 0, 0)
+  const jobs = Math.max(opts.jobs | 0, 1)
+  const killSignal = opts.killSignal || 'SIGTERM'
+  const args = rawargs ? rawargs.map(tmpl) : []
+  const outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
+  const filter = opts.filter || []
+  const awaitWriteFinish = !!opts.awaitWriteFinish
+  const running = new Set()
+  const queue = new Deque()
+
+  // Logging.
+  const log = opts.verbose ? function log (message) {
+    stdout.write('onchange: ' + message + '\n')
+  } : function () {}
+
+  // Invalid, nothing to run on change.
+  if (!command && !outpipe) {
+    throw new TypeError('Expected "command" and/or "outpipe" to be specified')
+  }
+
+  // Create the "watcher" instance for file system changes.
+  const watcher = chokidar.watch(matches, {
+    cwd: cwd,
+    ignored: opts.exclude || [],
+    usePolling: opts.poll === true || typeof opts.poll === 'number',
+    interval: typeof opts.poll === 'number' ? opts.poll : undefined,
+    awaitWriteFinish: awaitWriteFinish
+  })
+
+  /**
+   * Try and dequeue the next job to run.
+   */
+  function dequeue () {
+    // Nothing to process.
+    if (queue.size === 0) return
+
+    // Too many jobs running already.
+    if (running.size >= jobs) return
+
+    const item = queue.popLeft()
+    running.add(item)
+
+    // Start the process and remove when finished.
+    item.start(cwd, log, stdout, stderr, () => {
+      running.delete(item)
+      if (delay > 0) return setTimeout(dequeue, delay)
+      return dequeue()
+    })
+  }
+
+  /**
+   * Enqueue the next change event to run.
+   */
+  function enqueue (event, changed) {
+    // Kill all existing tasks on `enqueue`.
+    if (kill) {
+      queue.clear() // Remove pending ("killed") tasks.
+      running.forEach(child => child.kill(killSignal)) // Kill running tasks.
+    }
+
+    // Log the event and the file affected.
+    log(`"${changed}" -> ${event}`)
+
+    // Add item to job queue.
+    queue.push(new Job(command, args, outpipe, { event, changed }))
+
+    // Try to immediately run the enqueued job.
+    return dequeue()
+  }
+
+  watcher.on('ready', () => {
+    log(`watching ${matches.join(', ')}`)
+
+    // Execute initial event without any changes.
+    if (initial) enqueue('', '')
+
     // For any change, creation or deletion, try to run.
-    // Restart if the last run is still active.
-    watcher.on('all', function (event, changed) {
+    watcher.on('all', (event, changed) => {
       if (filter.length && filter.indexOf(event) === -1) return
 
-      // Log the event and the file affected
-      log(event + ' to ' + changed)
-
-      start({ event: event, changed: changed })
+      return enqueue(event, changed)
     })
+
+    // Notify external listener for "ready".
+    ready()
   })
 
-  watcher.on('error', function (error) {
-    log('watcher error: ' + error)
-  })
+  watcher.on('error', (error) => log(`watcher error: ${error}`))
 }
 
 // Double mustache template generator.
@@ -200,8 +189,13 @@ function outpipetmpl (str) {
   var value = str.trim()
 
   if (value.charAt(0) === '|' || value.charAt(0) === '>') {
-    return tmpl(echo + ' ' + value)
+    return tmpl(`${ECHO_CMD} ${value}`)
   }
 
   return tmpl(value)
+}
+
+// Simple exit message generator.
+function exitmsg (code, signal) {
+  return code == null ? `exited with ${signal}` : `completed with code ${code}`
 }

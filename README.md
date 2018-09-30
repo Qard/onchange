@@ -31,7 +31,7 @@ onchange '**/*.js' -- echo '{{event}} to {{changed}}'
 Enable if you want verbose logging from `onchange` (useful for debugging). For example:
 
 ```sh
-onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
+onchange -v 'app/**/*.js' 'test/**/*.js' -- npm test
 ```
 
 ### Initial (`-i`, `--initial`)
@@ -39,7 +39,7 @@ onchange 'app/**/*.js' 'test/**/*.js' -v -- npm test
 To execute the command on the first run (no change), include the `-i` flag: For example:
 
 ```sh
-onchange '**/*.js' -i -- npm start
+onchange -i '**/*.js' -- npm start
 ```
 
 ### Exclude (`-e`, `--exclude`)
@@ -50,20 +50,28 @@ To exclude matches (`**/node_modules/**` is excluded by default, use `--no-exclu
 onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 ```
 
-### Wait (`-w`, `--wait`)
+### Kill (`-k`, `--kill`)
 
-To wait for the current process to exit between restarts:
+To kill current and pending processes between changes:
 
 ```sh
-onchange '**/*.js' -w -- npm test
+onchange -k '**/*.js' -- npm test
+```
+
+### Jobs (`-j`, `--jobs`)
+
+Set the maximum concurrent processes to run (default is `1`):
+
+```sh
+onchange -j2 '**/*.js' -- npm test
 ```
 
 ### Delay (`-d`, `--delay`)
 
-To set the amount of delay (in ms) between process restarts:
+To set the amount of delay (in ms) between process exits:
 
 ```sh
-onchange '**/*.js' -d 1000 -- npm start
+onchange -d 1000 '**/*.js' -- npm start
 ```
 
 ### Await Write Finish (`--await-write-finish`)
@@ -71,7 +79,7 @@ onchange '**/*.js' -d 1000 -- npm start
 To hold the events until the size does not change for a configurable amount of time:
 
 ```sh
-onchange '**/*.js' --await-write-finish -- npm test
+onchange --await-write-finish '**/*.js' -- npm test
 ```
 
 ### Poll (`-p`, `--poll`)
@@ -79,7 +87,7 @@ onchange '**/*.js' --await-write-finish -- npm test
 Use polling to monitor for changes. Omitting the interval will default to 100ms. This option is useful if you're watching an NFS volume.
 
 ```sh
-onchange '**/*.js' -p -- npm test
+onchange -p '**/*.js' -- npm test
 ```
 
 ### Outpipe (`-o`, `--outpipe`)
@@ -87,7 +95,7 @@ onchange '**/*.js' -p -- npm test
 Shell command to execute every change:
 
 ```sh
-onchange 'src/**/*.js' -o '> .change' -- echo '{{event}} to {{changed}}'
+onchange -o '> .change' 'src/**/*.js' -- echo '{{event}} to {{changed}}'
 ```
 
 **P.S.** When a command is used with `--outpipe`, the `stdout` from the command will be piped into `outpipe`.
@@ -98,19 +106,7 @@ By default, onchange watch for all events from [chokidar](https://github.com/pau
 this option to watch only for events you need:
 
 ```sh
-onchange '**/*.js' -f add -f change -- npm start
-```
-
-You can separate events to listen with comas if you prefer:
-
-```sh
-onchange '**/*.js' -f add,change -- npm start
-```
-
-Or with spaces:
-
-```sh
-onchange '**/*.js' -f 'add change' -- npm start
+onchange -f 'add change' '**/*.js' -- npm start
 ```
 
 ## TypeScript
