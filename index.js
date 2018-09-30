@@ -124,12 +124,15 @@ function onchange (match, command, rawargs, opts = {}) {
     // Too many jobs running already.
     if (running.size >= jobs) return
 
-    const item = queue.popLeft()
-    running.add(item)
+    // Remove first job from queue (FIFO).
+    const job = queue.popLeft()
+
+    // Add job to running set.
+    running.add(job)
 
     // Start the process and remove when finished.
-    item.start(cwd, log, stdout, stderr, () => {
-      running.delete(item)
+    job.start(cwd, log, stdout, stderr, () => {
+      running.delete(job)
       if (delay > 0) return setTimeout(dequeue, delay)
       return dequeue()
     })
@@ -168,7 +171,7 @@ function onchange (match, command, rawargs, opts = {}) {
       return enqueue(event, changed)
     })
 
-    // Notify external listener for "ready".
+    // Notify external listener of "ready" event.
     ready()
   })
 
@@ -197,5 +200,5 @@ function outpipetmpl (str) {
 
 // Simple exit message generator.
 function exitmsg (code, signal) {
-  return code == null ? `exited with ${signal}` : `completed with code ${code}`
+  return code == null ? `exited with ${signal}` : `completed with ${code}`
 }
