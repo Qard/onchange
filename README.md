@@ -82,12 +82,12 @@ To hold the events until the size does not change for a configurable amount of t
 onchange --await-write-finish '**/*.js' -- npm test
 ```
 
-### Poll (`-p`, `--poll`)
+### Poll (`-p <ms>`, `--poll <ms>`)
 
-Use polling to monitor for changes. Omitting the interval will default to 100ms. This option is useful if you're watching an NFS volume.
+Use polling to monitor for changes. This option is useful if you're watching an NFS volume.
 
 ```sh
-onchange -p '**/*.js' -- npm test
+onchange -p 100 '**/*.js' -- npm test
 ```
 
 ### Outpipe (`-o`, `--outpipe`)
