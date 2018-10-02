@@ -11,18 +11,19 @@ npm install onchange
 ## Usage
 
 ```sh
+# On every change run `npm test`.
 onchange 'app/**/*.js' 'test/**/*.js' -- npm test
+
+# On every change restart `server.js` (by killing the running process).
+onchange -i -k '**/*.js' -- node server.js
+
+# On every change `echo` file change.
+onchange '**/*.js' -- echo '{{event}} to {{changed}}'
 ```
 
 NOTE: Windows users may need to use double quotes rather than single quotes. If used in an npm script, remember to escape the double quotes.
 
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
-
-To use the event and file that changed, use `{{event}}` or `{{changed}}` anywhere in the command after `--`. For example:
-
-```sh
-onchange '**/*.js' -- echo '{{event}} to {{changed}}'
-```
 
 ## Options
 
@@ -95,7 +96,7 @@ onchange -p 100 '**/*.js' -- npm test
 Shell command to execute every change:
 
 ```sh
-onchange -o '> .change' 'src/**/*.js' -- echo '{{event}} to {{changed}}'
+onchange -o '> .changelog' 'src/**/*.js' -- echo '{{event}} to {{changed}}'
 ```
 
 **P.S.** When a command is used with `--outpipe`, the `stdout` from the command will be piped into `outpipe`.
