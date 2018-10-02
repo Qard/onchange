@@ -17,19 +17,19 @@ module.exports = onchange
  * Execute a "job" on each change event.
  */
 class Job {
-  constructor (command, args, outpipe, options) {
+  constructor (log, command, args, outpipe, options) {
+    this.log = log
     this.command = command
     this.args = args
     this.outpipe = outpipe
     this.options = options
   }
 
-  start (cwd, log, stdout, stderr, onexit) {
+  start (cwd, stdout, stderr, onexit) {
     if (this.outpipe) {
       const cmd = this.outpipe(opts)
 
-      log(`executing outpipe "${cmd}"`)
-
+      this.log(`executing outpipe "${cmd}"`)
       this.childOutpipe = exec(cmd, { cwd })
 
       // Must pipe stdout and stderr.
@@ -37,7 +37,7 @@ class Job {
       this.childOutpipe.stderr.pipe(stderr)
 
       this.childOutpipe.on('exit', (code, signal) => {
-        log(`outpipe ${exitmsg(code, signal)}`)
+        this.log(`outpipe ${exitmsg(code, signal)}`)
         this.childOutpipe = undefined
         if (!this.childCommand) return onexit()
       })
@@ -46,15 +46,14 @@ class Job {
     if (this.command) {
       // Generate argument strings from templates.
       const cmd = this.args.map(tmpl => tmpl(this.options))
+      // Spawn child command. If `outpipe`, pipe `stdout` through `outpipe`.
       const stdio = ['ignore', this.childOutpipe ? this.childOutpipe.stdin : stdout, stderr]
 
-      log(`executing command "${[this.command].concat(cmd).join(' ')}"`)
-
-      // Spawn child command. If `outpipe`, pipe `stdout` through `outpipe`.
+      this.log(`executing command "${[this.command].concat(cmd).join(' ')}"`)
       this.childCommand = spawn(this.command, cmd, { cwd, stdio })
 
-      this.childCommand.on('exit', function (code, signal) {
-        log(`command ${exitmsg(code, signal)}`)
+      this.childCommand.on('exit', (code, signal) => {
+        this.log(`command ${exitmsg(code, signal)}`)
         this.childCommand = undefined
         if (!this.childOutpipe) return onexit()
       })
@@ -64,14 +63,14 @@ class Job {
     }
   }
 
-  kill (log, killSignal) {
+  kill (killSignal) {
     if (this.childOutpipe) {
-      log(`killing outpipe ${this.childOutpipe.pid}`)
+      this.log(`killing outpipe ${this.childOutpipe.pid}`)
       treeKill(this.childOutpipe.pid, killSignal)
     }
 
     if (this.childCommand) {
-      log(`killing command ${this.childCommand.pid}`)
+      this.log(`killing command ${this.childCommand.pid}`)
       treeKill(this.childCommand.pid, killSignal)
     }
   }
@@ -131,7 +130,7 @@ function onchange (match, command, rawargs, opts = {}) {
     running.add(job)
 
     // Start the process and remove when finished.
-    job.start(cwd, log, stdout, stderr, () => {
+    job.start(cwd, stdout, stderr, () => {
       running.delete(job)
       if (delay > 0) return setTimeout(dequeue, delay)
       return dequeue()
@@ -152,7 +151,7 @@ function onchange (match, command, rawargs, opts = {}) {
     log(`"${changed}" -> ${event}`)
 
     // Add item to job queue.
-    queue.push(new Job(command, args, outpipe, { event, changed }))
+    queue.push(new Job(log, command, args, outpipe, { event, changed }))
 
     // Try to immediately run the enqueued job.
     return dequeue()
