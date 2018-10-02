@@ -71,7 +71,7 @@ class Job {
     }
 
     if (this.childCommand) {
-      log(`killing command ${this.childOutpipe.pid}`)
+      log(`killing command ${this.childCommand.pid}`)
       treeKill(this.childCommand.pid, killSignal)
     }
   }
