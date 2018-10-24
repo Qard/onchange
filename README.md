@@ -51,6 +51,8 @@ To exclude matches (`**/node_modules/**` is excluded by default, use `--no-exclu
 onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 ```
 
+**P.S.** When you exclude something, it overrides the default, so if you want to keep `**/node_modules/**` excluded, then you need to add it to the command explicitly.
+
 ### Kill (`-k`, `--kill`)
 
 To kill current and pending processes between changes:
