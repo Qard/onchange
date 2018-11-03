@@ -77,7 +77,7 @@ onchange -d 1000 '**/*.js' -- npm start
 
 ### Await Write Finish (`--await-write-finish <ms>`)
 
-To hold the events until the size does not change for a configurable amount of time (it defaults to 2000 ms when activated without a number beeing supplied):
+To hold the events until the size does not change for a configurable amount of time (in ms, default is [`2000`](https://www.npmjs.com/package/chokidar#performance)):
 
 ```sh
 onchange --await-write-finish 1500 '**/*.js' -- npm test
