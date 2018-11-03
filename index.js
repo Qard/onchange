@@ -90,9 +90,9 @@ function onchange (match, command, rawargs, opts = {}) {
   const args = rawargs ? rawargs.map(tmpl) : []
   const outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
   const filter = opts.filter || []
-  const awaitWriteFinish =  typeof opts.awaitWriteFinish === 'number' ? 
-    { stabilityThreshold: opts.awaitWriteFinish } : 
-    !!opts.awaitWriteFinish ? { stabilityThreshold: 2000 } : false;
+  const awaitWriteFinish =  typeof opts.awaitWriteFinish === 'number' 
+    ? { stabilityThreshold: opts.awaitWriteFinish } 
+    : !!opts.awaitWriteFinish
   const running = new Set()
   const queue = new Deque()
 
