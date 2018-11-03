@@ -16,7 +16,7 @@ declare namespace onchange {
     stderr?: NodeJS.WritableStream;
     outpipe?: string;
     filter?: string[];
-    awaitWriteFinish?: boolean;
+    awaitWriteFinish?: boolean | number;
   }
 }
 

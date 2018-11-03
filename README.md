@@ -77,12 +77,12 @@ To set the amount of delay (in ms) between process exits:
 onchange -d 1000 '**/*.js' -- npm start
 ```
 
-### Await Write Finish (`--await-write-finish`)
+### Await Write Finish (`--await-write-finish <ms>`)
 
-To hold the events until the size does not change for a configurable amount of time:
+To hold the events until the size does not change for a configurable amount of time (in ms, default is [`2000`](https://www.npmjs.com/package/chokidar#performance)):
 
 ```sh
-onchange --await-write-finish '**/*.js' -- npm test
+onchange --await-write-finish 1500 '**/*.js' -- npm test
 ```
 
 ### Poll (`-p <ms>`, `--poll <ms>`)
