@@ -6,6 +6,7 @@ declare namespace onchange {
   export interface Options {
     exclude?: string[];
     cwd?: string;
+    add?: boolean;
     initial?: boolean;
     verbose?: boolean;
     jobs?: number;

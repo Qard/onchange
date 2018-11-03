@@ -35,9 +35,17 @@ Enable if you want verbose logging from `onchange` (useful for debugging). For e
 onchange -v 'app/**/*.js' 'test/**/*.js' -- npm test
 ```
 
+### Add (`-a`, `--add`)
+
+To execute the command for all initially added paths:
+
+```sh
+onchange -a 'config.json' -- microservice-proxy -c {{changed}} -p 9000
+```
+
 ### Initial (`-i`, `--initial`)
 
-To execute the command on the first run (no change), include the `-i` flag: For example:
+To execute the command once on load without any event:
 
 ```sh
 onchange -i '**/*.js' -- npm start
@@ -66,12 +74,12 @@ onchange -k '**/*.js' -- npm test
 Set the maximum concurrent processes to run (default is `1`):
 
 ```sh
-onchange -j2 '**/*.js' -- npm test
+onchange -j2 '**/*.js' -- cp -v -r '{{changed}}' 'test/{{changed}}'
 ```
 
 ### Delay (`-d`, `--delay`)
 
-To set the amount of delay (in ms) between process exits:
+To set the amount of delay (in ms) between process changes:
 
 ```sh
 onchange -d 1000 '**/*.js' -- npm start

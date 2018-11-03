@@ -110,6 +110,7 @@ function onchange (match, command, rawargs, opts = {}) {
   const watcher = chokidar.watch(matches, {
     cwd: cwd,
     ignored: opts.exclude || [],
+    ignoreInitial: opts.add !== true,
     usePolling: opts.poll === true || typeof opts.poll === 'number',
     interval: typeof opts.poll === 'number' ? opts.poll : undefined,
     awaitWriteFinish: awaitWriteFinish
@@ -159,21 +160,22 @@ function onchange (match, command, rawargs, opts = {}) {
     return dequeue()
   }
 
+  // Execute initial event without any changes.
+  if (initial) enqueue('', '')
+
+  // For any change, creation or deletion, try to run.
+  watcher.on('all', (event, changed) => {
+    if (filter.length && filter.indexOf(event) === -1) return
+
+    return enqueue(event, changed)
+  })
+
+  // On ready, prepare triggers.
   watcher.on('ready', () => {
     log(`watching ${matches.join(', ')}`)
 
-    // Execute initial event without any changes.
-    if (initial) enqueue('', '')
-
-    // For any change, creation or deletion, try to run.
-    watcher.on('all', (event, changed) => {
-      if (filter.length && filter.indexOf(event) === -1) return
-
-      return enqueue(event, changed)
-    })
-
     // Notify external listener of "ready" event.
-    ready()
+    return ready()
   })
 
   watcher.on('error', (error) => log(`watcher error: ${error}`))
