@@ -27,7 +27,7 @@ class Job {
 
   start (cwd, stdout, stderr, onexit) {
     if (this.outpipe) {
-      const cmd = this.outpipe(opts)
+      const cmd = this.outpipe(this.options)
 
       this.log(`executing outpipe "${cmd}"`)
       this.childOutpipe = exec(cmd, { cwd })
@@ -90,8 +90,8 @@ function onchange (match, command, rawargs, opts = {}) {
   const args = rawargs ? rawargs.map(tmpl) : []
   const outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
   const filter = opts.filter || []
-  const awaitWriteFinish =  typeof opts.awaitWriteFinish === 'number' 
-    ? { stabilityThreshold: opts.awaitWriteFinish } 
+  const awaitWriteFinish = typeof opts.awaitWriteFinish === 'number'
+    ? { stabilityThreshold: opts.awaitWriteFinish }
     : !!opts.awaitWriteFinish
   const running = new Set()
   const queue = new Deque()
