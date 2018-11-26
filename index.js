@@ -6,7 +6,8 @@ const chokidar = require('chokidar')
 const arrify = require('arrify')
 const { Deque } = require('@blakeembrey/deque')
 
-const ECHO_CMD = `${process.execPath} ${resolve(__dirname, 'echo.js')}`
+const ECHO_JS_PATH = resolve(__dirname, 'echo.js')
+const ECHO_CMD = `${quote(process.execPath)} ${quote(ECHO_JS_PATH)}`
 
 /**
  * Export `onchange` function.
@@ -210,4 +211,11 @@ function outpipetmpl (str) {
 // Simple exit message generator.
 function exitmsg (code, signal) {
   return code == null ? `exited with ${signal}` : `completed with ${code}`
+}
+
+/**
+ * Quote value for `exec`.
+ */
+function quote (str) {
+  return `'${str.replace(/'/g, "'\\''")}'`
 }
