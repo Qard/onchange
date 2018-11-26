@@ -82,7 +82,7 @@ class Job {
   }
 }
 
-function onchange (match, command, rawargs, opts = {}) {
+function onchange (match, command, rawArgs, opts = {}) {
   const matches = arrify(match)
   const ready = opts.ready || (() => undefined)
   const initial = !!opts.initial
@@ -93,8 +93,8 @@ function onchange (match, command, rawargs, opts = {}) {
   const delay = Math.max(opts.delay | 0, 0)
   const jobs = Math.max(opts.jobs | 0, 1)
   const killSignal = opts.killSignal || 'SIGTERM'
-  const args = rawargs ? rawargs.map(tmpl) : []
-  const outpipe = typeof opts.outpipe === 'string' ? outpipetmpl(opts.outpipe) : undefined
+  const args = rawArgs ? rawArgs.map(template) : []
+  const outpipe = typeof opts.outpipe === 'string' ? outpipeTemplate(opts.outpipe) : undefined
   const filter = opts.filter || []
   const awaitWriteFinish = typeof opts.awaitWriteFinish === 'number'
     ? { stabilityThreshold: opts.awaitWriteFinish }
@@ -188,7 +188,7 @@ function onchange (match, command, rawargs, opts = {}) {
 }
 
 // Double mustache template generator.
-function tmpl (str) {
+function template (str) {
   return function (data) {
     return str.replace(/{{([^{}]+)}}/g, function (_, key) {
       return data[key]
@@ -197,14 +197,14 @@ function tmpl (str) {
 }
 
 // Template generator for `outpipe` option.
-function outpipetmpl (str) {
+function outpipeTemplate (str) {
   var value = str.trim()
 
   if (value.charAt(0) === '|' || value.charAt(0) === '>') {
-    return tmpl(`${ECHO_CMD} ${value}`)
+    return template(`${ECHO_CMD} ${value}`)
   }
 
-  return tmpl(value)
+  return template(value)
 }
 
 // Simple exit message generator.
