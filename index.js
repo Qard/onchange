@@ -65,7 +65,7 @@ class Job {
       })
     } else {
       // No data to write to `outpipe`.
-      childOutpipe.stdin.end()
+      this.childOutpipe.stdin.end()
     }
   }
 
