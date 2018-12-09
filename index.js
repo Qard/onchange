@@ -222,5 +222,5 @@ function exitmsg (code, signal) {
  * Quote value for `exec`.
  */
 function quote (str) {
-  return `'${str.replace(/'/g, "'\\''")}'`
+  return `"${str.replace(/["\\$`!]/g, '\\$&')}"`
 }
