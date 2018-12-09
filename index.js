@@ -5,6 +5,7 @@ const { spawn } = require('cross-spawn')
 const chokidar = require('chokidar')
 const arrify = require('arrify')
 const { Deque } = require('@blakeembrey/deque')
+const { supportsColor } = require('supports-color')
 
 const ECHO_JS_PATH = resolve(__dirname, 'echo.js')
 const ECHO_CMD = `${quote(process.execPath)} ${quote(ECHO_JS_PATH)}`
@@ -26,12 +27,15 @@ class Job {
     this.options = options
   }
 
-  start (cwd, stdout, stderr, onexit) {
+  start (cwd, stdout, stderr, jobEnv, onexit) {
+    const color = supportsColor(stdout)
+    const env = Object.assign({ FORCE_COLOR: color.level }, jobEnv)
+
     if (this.outpipe) {
       const cmd = this.outpipe(this.options)
 
       this.log(`executing outpipe "${cmd}"`)
-      this.childOutpipe = exec(cmd, { cwd })
+      this.childOutpipe = exec(cmd, { cwd, env })
 
       // Must pipe stdout and stderr.
       this.childOutpipe.stdout.pipe(stdout, { end: false })
@@ -49,7 +53,7 @@ class Job {
       const cmd = this.args.map(tmpl => tmpl(this.options))
 
       this.log(`executing command "${[this.command].concat(cmd).join(' ')}"`)
-      this.childCommand = spawn(this.command, cmd, { cwd })
+      this.childCommand = spawn(this.command, cmd, { cwd, env })
       this.childCommand.stderr.pipe(stderr, { end: false })
 
       // If `outpipe`, pipe `stdout` into `outpipe` command.
@@ -91,6 +95,7 @@ function onchange (match, command, rawArgs, opts = {}) {
   const cwd = opts.cwd ? resolve(opts.cwd) : process.cwd()
   const stdout = opts.stdout || process.stdout
   const stderr = opts.stderr || process.stderr
+  const env = opts.env || process.env
   const delay = Math.max(opts.delay | 0, 0)
   const jobs = Math.max(opts.jobs | 0, 1)
   const killSignal = opts.killSignal || 'SIGTERM'
@@ -140,7 +145,7 @@ function onchange (match, command, rawArgs, opts = {}) {
     running.add(job)
 
     // Start the process and remove when finished.
-    job.start(cwd, stdout, stderr, () => {
+    job.start(cwd, stdout, stderr, env, () => {
       running.delete(job)
       if (delay > 0) return setTimeout(dequeue, delay)
       return dequeue()
