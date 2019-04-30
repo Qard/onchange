@@ -15,7 +15,7 @@
   "dependencies": {
     "@blakeembrey/deque": "^1.0.3",
     "arrify": "^2.0.0",
-    "chokidar": "^2.0.0",
+    "chokidar": "^3.0.0",
     "cross-spawn": "^6.0.0",
     "minimist": "^1.2.0",
     "supports-color": "^6.0.0",
