@@ -18,7 +18,7 @@
     "chokidar": "^3.0.0",
     "cross-spawn": "^6.0.0",
     "minimist": "^1.2.0",
-    "supports-color": "^6.0.0",
+    "supports-color": "^7.0.0",
     "tree-kill": "^1.2.0"
   },
   "main": "index.js",
