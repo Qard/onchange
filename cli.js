@@ -2,6 +2,7 @@
 
 var onchange = require('./')
 var arrify = require('arrify')
+var { readFileSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
@@ -37,8 +38,11 @@ var matches = argv._.slice()
 var args = argv['--'].slice()
 var command = args.shift()
 
+const exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
+const ignorePath = argv['ignore-path']
+
 var options = {
-  exclude: typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude),
+  exclude: getIgnoreMergedFromIgnoreFile(exclude, ignorePath),
   verbose: argv.verbose,
   add: argv.add,
   initial: argv.initial,
@@ -51,8 +55,25 @@ var options = {
   outpipe: argv.outpipe,
   filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/)),
   awaitWriteFinish: argv['await-write-finish'],
-  ignorePath: argv['ignore-path']
+  ignorePath
 }
+
+function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath = './.onchangeignore') {
+  if(ignorePath && existsSync(ignorePath)) {
+    const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
+    const ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
+    
+    const ignoredSet = new Set([...ignoreFileArray, ...exclude])
+    
+    ignoredSet.delete('')
+
+    return [...ignoredSet]
+  }
+
+  return exclude
+}
+
+console.log(options)
 
 if (!command && !options.outpipe) {
   console.error('Remember to pass the command after "--":')
