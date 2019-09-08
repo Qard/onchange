@@ -59,7 +59,7 @@ var options = {
 }
 
 function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath = './.onchangeignore') {
-  if(ignorePath && existsSync(ignorePath)) {
+  if(existsSync(ignorePath)) {
     const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
     const ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
     
