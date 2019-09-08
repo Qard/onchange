@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-var onchange = require('./')
-var arrify = require('arrify')
-var { readFileSync, lstatSync, existsSync } = require('fs')
+const onchange = require('./')
+const arrify = require('arrify')
+const { readFileSync, lstatSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
-var argv = require('minimist')(process.argv.slice(2), {
+const argv = require('minimist')(process.argv.slice(2), {
   '--': true,
   boolean: ['v', 'i', 'k', 'a'],
   string: ['e', 'c', 'killSignal'],
@@ -34,20 +34,19 @@ if (!argv._.length || argv.help) {
 }
 
 // Setup some storage variables
-var matches = argv._.slice()
-var args = argv['--'].slice()
-var command = args.shift()
+const matches = argv._.slice()
+const args = argv['--'].slice()
+const command = args.shift()
 
+// Init config ignored files
 const ignorePathDefault = './.onchangeignore'
-
 const ignorePath = typeof argv['ignore-path'] === 'string'
   ? argv['ignore-path']
   : ignorePathDefault
-  
 const exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
 
-var options = {
-  exclude: getIgnoreMergedFromIgnoreFile(exclude, ignorePath),
+const options = {
+  exclude: getExcludeMergedWithIgnoreFile(exclude, ignorePath),
   verbose: argv.verbose,
   add: argv.add,
   initial: argv.initial,
@@ -63,7 +62,7 @@ var options = {
   ignorePath
 }
 
-function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath = ignorePathDefault) {
+function getExcludeMergedWithIgnoreFile(exclude = [], ignorePath = ignorePathDefault) {
   if(existsSync(ignorePath)) {
 
     if (!lstatSync(ignorePath).isFile()) {
