@@ -2,7 +2,7 @@
 
 var onchange = require('./')
 var arrify = require('arrify')
-var { readFileSync, existsSync } = require('fs')
+var { readFileSync, lstatSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
@@ -38,8 +38,13 @@ var matches = argv._.slice()
 var args = argv['--'].slice()
 var command = args.shift()
 
+const ignorePathDefault = './.onchangeignore'
+
+const ignorePath = typeof argv['ignore-path'] === 'string'
+  ? argv['ignore-path']
+  : ignorePathDefault
+  
 const exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
-const ignorePath = argv['ignore-path']
 
 var options = {
   exclude: getIgnoreMergedFromIgnoreFile(exclude, ignorePath),
@@ -58,8 +63,14 @@ var options = {
   ignorePath
 }
 
-function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath = './.onchangeignore') {
+function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath = ignorePathDefault) {
   if(existsSync(ignorePath)) {
+
+    if (!lstatSync(ignorePath).isFile()) {
+      console.warn("Only file path is allowed in flag '--ignore-path'! Ignoring flag.")
+      return exclude
+    }
+    
     const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
     const ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
     
