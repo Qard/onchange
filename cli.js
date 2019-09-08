@@ -51,7 +51,7 @@ var options = {
   outpipe: argv.outpipe,
   filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/)),
   awaitWriteFinish: argv['await-write-finish'],
-  ignorePath: argv['ignore-path'] || './.onchangeignore'
+  ignorePath: argv['ignore-path']
 }
 
 if (!command && !options.outpipe) {
