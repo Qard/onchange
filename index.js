@@ -117,7 +117,7 @@ function onchange (match, command, rawArgs, opts = {}) {
   if (!command && !outpipe) {
     throw new TypeError('Expected "command" and/or "outpipe" to be specified')
   }
-  
+
   // Create the "watcher" instance for file system changes.
   const watcher = chokidar.watch(matches, {
     cwd: cwd,
