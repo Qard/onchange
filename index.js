@@ -89,7 +89,6 @@ class Job {
 }
 
 function onchange (match, command, rawArgs, opts = {}) {
-  const ignored = opts.exclude || []
   const matches = arrify(match)
   const ready = opts.ready || (() => undefined)
   const initial = !!opts.initial
@@ -120,30 +119,17 @@ function onchange (match, command, rawArgs, opts = {}) {
     throw new TypeError('Expected "command" and/or "outpipe" to be specified')
   }
 
+  const ignored = getIgnoreMergedFromIgnoreFile(opts.exclude, opts.ignorePath)
+  
   // Create the "watcher" instance for file system changes.
   const watcher = chokidar.watch(matches, {
     cwd: cwd,
-    ignored: getIgnoreMergedFromIgnoreFile(opts.ignorePath),
+    ignored,
     ignoreInitial: opts.add !== true,
     usePolling: opts.poll === true || typeof opts.poll === 'number',
     interval: typeof opts.poll === 'number' ? opts.poll : undefined,
     awaitWriteFinish: awaitWriteFinish
   })
-
-  function getIgnoreMergedFromIgnoreFile(ignorePath) {
-    if(existsSync(ignorePath)) {
-      const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
-      const ignoreFileArray = ignoreFileString.replace(/^#[^\n]+\n/gm, '').split(/\n/)
-      
-      const ignoredSet = new Set([...ignoreFileArray, ...ignored])
-      
-      ignoredSet.delete('')
-  
-      return [...ignoredSet]
-    }
-
-    return ignored
-  }
 
   /**
    * Try and dequeue the next job to run.
@@ -208,6 +194,21 @@ function onchange (match, command, rawArgs, opts = {}) {
   })
 
   watcher.on('error', (error) => log(`watcher error: ${error}`))
+}
+
+function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath) {
+    if(existsSync(ignorePath)) {
+      const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
+      const ignoreFileArray = ignoreFileString.replace(/^#[^\n]+\n/gm, '').split(/\n/)
+      
+      const ignoredSet = new Set([...ignoreFileArray, ...exclude])
+      
+      ignoredSet.delete('')
+  
+      return [...ignoredSet]
+    }
+
+    return exclude
 }
 
 // Double mustache template generator.
