@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const onchange = require('./')
-const arrify = require('arrify')
-const { readFileSync, lstatSync, existsSync } = require('fs')
+var onchange = require('./')
+var arrify = require('arrify')
+var { readFileSync, lstatSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
-const argv = require('minimist')(process.argv.slice(2), {
+var argv = require('minimist')(process.argv.slice(2), {
   '--': true,
   boolean: ['v', 'i', 'k', 'a'],
   string: ['e', 'c', 'killSignal'],
@@ -34,18 +34,19 @@ if (!argv._.length || argv.help) {
 }
 
 // Setup some storage variables
-const matches = argv._.slice()
-const args = argv['--'].slice()
-const command = args.shift()
+var matches = argv._.slice()
+var args = argv['--'].slice()
+var command = args.shift()
 
 // Init config ignored files
-const ignorePathDefault = './.onchangeignore'
-const ignorePath = typeof argv['ignore-path'] === 'string'
+var ignorePathDefault = './.onchangeignore'
+var ignorePath = typeof argv['ignore-path'] === 'string'
   ? argv['ignore-path']
   : ignorePathDefault
-const exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
+var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
+var ignorePath = argv['ignore-path']
 
-const options = {
+var options = {
   exclude: getExcludeMergedWithIgnoreFile(exclude, ignorePath),
   verbose: argv.verbose,
   add: argv.add,
@@ -70,10 +71,10 @@ function getExcludeMergedWithIgnoreFile(exclude = [], ignorePath = ignorePathDef
       return exclude
     }
     
-    const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
-    const ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
+    var ignoreFileString = readFileSync(ignorePath).toString('utf-8')
+    var ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
     
-    const ignoredSet = new Set([...ignoreFileArray, ...exclude])
+    var ignoredSet = new Set([...ignoreFileArray, ...exclude])
     
     ignoredSet.delete('')
 
@@ -82,6 +83,7 @@ function getExcludeMergedWithIgnoreFile(exclude = [], ignorePath = ignorePathDef
 
   return exclude
 }
+
 
 if (!command && !options.outpipe) {
   console.error('Remember to pass the command after "--":')
