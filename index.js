@@ -120,6 +120,8 @@ function onchange (match, command, rawArgs, opts = {}) {
   }
 
   const ignored = getIgnoreMergedFromIgnoreFile(opts.exclude, opts.ignorePath)
+
+  console.log(ignored)
   
   // Create the "watcher" instance for file system changes.
   const watcher = chokidar.watch(matches, {
@@ -199,7 +201,7 @@ function onchange (match, command, rawArgs, opts = {}) {
 function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath) {
     if(existsSync(ignorePath)) {
       const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
-      const ignoreFileArray = ignoreFileString.replace(/^#[^\n]+\n/gm, '').split(/\n/)
+      const ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
       
       const ignoredSet = new Set([...ignoreFileArray, ...exclude])
       
