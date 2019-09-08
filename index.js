@@ -6,6 +6,7 @@ const chokidar = require('chokidar')
 const arrify = require('arrify')
 const { Deque } = require('@blakeembrey/deque')
 const { supportsColor } = require('supports-color')
+const { readFileSync, existsSync } = require('fs')
 
 const ECHO_JS_PATH = resolve(__dirname, 'echo.js')
 const ECHO_CMD = `${quote(process.execPath)} ${quote(ECHO_JS_PATH)}`
@@ -88,6 +89,7 @@ class Job {
 }
 
 function onchange (match, command, rawArgs, opts = {}) {
+  const ignored = opts.exclude || []
   const matches = arrify(match)
   const ready = opts.ready || (() => undefined)
   const initial = !!opts.initial
@@ -121,12 +123,27 @@ function onchange (match, command, rawArgs, opts = {}) {
   // Create the "watcher" instance for file system changes.
   const watcher = chokidar.watch(matches, {
     cwd: cwd,
-    ignored: opts.exclude || [],
+    ignored: getIgnoreMergedFromIgnoreFile(opts.ignorePath),
     ignoreInitial: opts.add !== true,
     usePolling: opts.poll === true || typeof opts.poll === 'number',
     interval: typeof opts.poll === 'number' ? opts.poll : undefined,
     awaitWriteFinish: awaitWriteFinish
   })
+
+  function getIgnoreMergedFromIgnoreFile(ignorePath) {
+    if(existsSync(ignorePath)) {
+      const ignoreFileString = readFileSync(ignorePath).toString('utf-8')
+      const ignoreFileArray = ignoreFileString.replace(/^#[^\n]+\n/gm, '').split(/\n/)
+      
+      const ignoredSet = new Set([...ignoreFileArray, ...ignored])
+      
+      ignoredSet.delete('')
+  
+      return [...ignoredSet]
+    }
+
+    return ignored
+  }
 
   /**
    * Try and dequeue the next job to run.
