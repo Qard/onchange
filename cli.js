@@ -73,8 +73,6 @@ function getIgnoreMergedFromIgnoreFile(exclude = [], ignorePath = './.onchangeig
   return exclude
 }
 
-console.log(options)
-
 if (!command && !options.outpipe) {
   console.error('Remember to pass the command after "--":')
   console.error('  onchange \'**/*.js\' -- echo \'{{changed}}\'')
