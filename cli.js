@@ -2,6 +2,8 @@
 
 var onchange = require('./')
 var arrify = require('arrify')
+var ignore = require('ignore')
+var { relative } = require('path')
 var { readFileSync, lstatSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
@@ -47,7 +49,7 @@ var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
 var ignorePath = argv['ignore-path']
 
 var options = {
-  exclude: getExcludeMergedWithIgnoreFile(exclude, ignorePath),
+  exclude: getIgnoreFunction(exclude, ignorePath),
   verbose: argv.verbose,
   add: argv.add,
   initial: argv.initial,
@@ -63,25 +65,23 @@ var options = {
   ignorePath
 }
 
-function getExcludeMergedWithIgnoreFile(exclude = [], ignorePath = ignorePathDefault) {
-  if(existsSync(ignorePath)) {
+function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
+  var ignorer = ignore().add(exclude)
 
-    if (!lstatSync(ignorePath).isFile()) {
-      console.warn("Only file path is allowed in flag '--ignore-path'! Ignoring flag.")
-      return exclude
-    }
-    
-    var ignoreFileString = readFileSync(ignorePath).toString('utf-8')
-    var ignoreFileArray = ignoreFileString.replace(/^#[^\r\n]+\r?\n/gm, '').split(/\r?\n/)
-    
-    var ignoredSet = new Set([...ignoreFileArray, ...exclude])
-    
-    ignoredSet.delete('')
-
-    return [...ignoredSet]
+  const func = (path) => {
+    const relativePath = relative(process.cwd(), path)
+    return relativePath && ignorer.ignores(relativePath)
   }
 
-  return exclude
+  if(existsSync(ignorePath)) {
+    if (!lstatSync(ignorePath).isFile()) {
+      console.warn("Only file path is allowed in flag '--ignore-path'! Ignoring flag.")
+      return func
+    }
+    ignorer.add(readFileSync(ignorePath).toString('utf-8'))
+  }
+
+  return func
 }
 
 

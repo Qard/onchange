@@ -17,6 +17,7 @@
     "arrify": "^2.0.0",
     "chokidar": "^3.0.0",
     "cross-spawn": "^6.0.0",
+    "ignore": "^5.1.4",
     "minimist": "^1.2.0",
     "supports-color": "^7.0.0",
     "tree-kill": "^1.2.0"
