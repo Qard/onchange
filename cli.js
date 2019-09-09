@@ -46,7 +46,6 @@ var ignorePath = typeof argv['ignore-path'] === 'string'
   ? argv['ignore-path']
   : ignorePathDefault
 var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
-var ignorePath = argv['ignore-path']
 
 var options = {
   exclude: getIgnoreFunction(exclude, ignorePath),
@@ -68,7 +67,7 @@ var options = {
 function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
   var ignorer = ignore().add(exclude)
 
-  const func = (path) => {
+  const functionIgnore = (path) => {
     const relativePath = relative(process.cwd(), path)
     return relativePath && ignorer.ignores(relativePath)
   }
@@ -76,14 +75,13 @@ function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
   if(existsSync(ignorePath)) {
     if (!lstatSync(ignorePath).isFile()) {
       console.warn("Only file path is allowed in flag '--ignore-path'! Ignoring flag.")
-      return func
+      return functionIgnore
     }
-    ignorer.add(readFileSync(ignorePath).toString('utf-8'))
+    ignorer.add(readFileSync(ignorePat).toString('utf-8'))
   }
 
-  return func
+  return functionIgnore
 }
-
 
 if (!command && !options.outpipe) {
   console.error('Remember to pass the command after "--":')
