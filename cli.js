@@ -3,7 +3,7 @@
 var onchange = require('./')
 var arrify = require('arrify')
 var ignore = require('ignore')
-var { relative } = require('path')
+var { relative, resolve } = require('path')
 var { readFileSync, lstatSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
@@ -48,7 +48,7 @@ var ignorePath = typeof argv['ignore-path'] === 'string'
 var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
 
 var options = {
-  exclude: getIgnoreFunction(exclude, ignorePath),
+  exclude: getIgnoreFunction(exclude, ignorePath, argv.cwd),
   verbose: argv.verbose,
   add: argv.add,
   initial: argv.initial,
@@ -64,9 +64,9 @@ var options = {
   ignorePath
 }
 
-function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
+function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault, cwd) {
   var ignorer = ignore().add(exclude)
-  var currentPath = process.cwd()
+  var currentPath = cwd ? resolve(cwd) : process.cwd()
 
   var functionIgnore = (filePath) => {
     var relativePath = relative(currentPath, filePath)
