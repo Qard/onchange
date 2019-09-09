@@ -66,9 +66,10 @@ var options = {
 
 function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
   var ignorer = ignore().add(exclude)
+  var currentPath = process.cwd()
 
-  var functionIgnore = (path) => {
-    var relativePath = relative(process.cwd(), path)
+  var functionIgnore = (filePath) => {
+    var relativePath = relative(currentPath, filePath)
     return relativePath && ignorer.ignores(relativePath)
   }
 
