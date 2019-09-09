@@ -67,8 +67,8 @@ var options = {
 function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
   var ignorer = ignore().add(exclude)
 
-  const functionIgnore = (path) => {
-    const relativePath = relative(process.cwd(), path)
+  var functionIgnore = (path) => {
+    var relativePath = relative(process.cwd(), path)
     return relativePath && ignorer.ignores(relativePath)
   }
 
@@ -77,7 +77,7 @@ function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault) {
       console.warn("Only file path is allowed in flag '--ignore-path'! Ignoring flag.")
       return functionIgnore
     }
-    ignorer.add(readFileSync(ignorePat).toString('utf-8'))
+    ignorer.add(readFileSync(ignorePath).toString('utf-8'))
   }
 
   return functionIgnore
