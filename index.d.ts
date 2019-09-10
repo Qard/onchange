@@ -4,7 +4,7 @@ declare function onchange (matches: string[], command: string, args?: string[], 
 
 declare namespace onchange {
   export interface Options {
-    exclude?: string[];
+    exclude?: Array<string | ((path: string) => boolean)>;
     cwd?: string;
     add?: boolean;
     initial?: boolean;
