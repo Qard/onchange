@@ -2,6 +2,9 @@
 
 var onchange = require('./')
 var arrify = require('arrify')
+var ignore = require('ignore')
+var { relative, resolve } = require('path')
+var { readFileSync, lstatSync, existsSync } = require('fs')
 
 // Parse argv with minimist...it's easier this way.
 var argv = require('minimist')(process.argv.slice(2), {
@@ -37,8 +40,15 @@ var matches = argv._.slice()
 var args = argv['--'].slice()
 var command = args.shift()
 
+// Init config ignored files
+var ignorePathDefault = './.onchangeignore'
+var ignorePath = typeof argv['ignore-path'] === 'string'
+  ? argv['ignore-path']
+  : ignorePathDefault
+var exclude = typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude)
+
 var options = {
-  exclude: typeof argv.exclude === 'boolean' ? [] : arrify(argv.exclude),
+  exclude: getIgnoreFunction(exclude, ignorePath, argv.cwd),
   verbose: argv.verbose,
   add: argv.add,
   initial: argv.initial,
@@ -50,7 +60,28 @@ var options = {
   killSignal: argv.killSignal,
   outpipe: argv.outpipe,
   filter: argv.filter && (Array.isArray(argv.filter) ? argv.filter : argv.filter.split(/\W+/)),
-  awaitWriteFinish: argv['await-write-finish']
+  awaitWriteFinish: argv['await-write-finish'],
+  ignorePath
+}
+
+function getIgnoreFunction(exclude = [], ignorePath = ignorePathDefault, cwd) {
+  var ignorer = ignore().add(exclude)
+  var currentPath = cwd ? resolve(cwd) : process.cwd()
+
+  var functionIgnore = (filePath) => {
+    var relativePath = relative(currentPath, filePath)
+    return relativePath && ignorer.ignores(relativePath)
+  }
+
+  if(existsSync(ignorePath)) {
+    if (!lstatSync(ignorePath).isFile()) {
+      console.warn("Only file path is allowed in flag '--ignore-path'! Ignoring flag.")
+      return functionIgnore
+    }
+    ignorer.add(readFileSync(ignorePath).toString('utf-8'))
+  }
+
+  return functionIgnore
 }
 
 if (!command && !options.outpipe) {
