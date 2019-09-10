@@ -121,7 +121,7 @@ onchange -o '> .changelog' 'src/**/*.js' -- echo '{{event}} to {{changed}}'
 
 ### Filter (`-f`, `--filter`)
 
-By default, onchange watch for all events from [chokidar](https://github.com/paulmillr/chokidar#methods--events). Use
+By default, onchange watches for all events from [chokidar](https://github.com/paulmillr/chokidar#methods--events). Use
 this option to watch only for events you need:
 
 ```sh
