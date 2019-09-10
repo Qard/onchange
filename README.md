@@ -61,7 +61,7 @@ onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 
 **P.S.** When you exclude something, it overrides the default, so if you want to keep `**/node_modules/**` excluded, then you need to add it to the command explicitly.
 
-## Exclude Path (`--exclude-path`)
+### Exclude Path (`--exclude-path`)
 
 Excludes all paths in a file following the [`.gitignore`](https://git-scm.com/docs/gitignore) specification.
 
