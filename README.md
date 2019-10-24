@@ -21,8 +21,6 @@ onchange -i -k '**/*.js' -- node server.js
 onchange '**/*.js' -- echo '{{event}} to {{changed}}'
 ```
 
-NOTE: Windows users may need to use double quotes rather than single quotes. If used in an npm script, remember to escape the double quotes.
-
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
 
 ## Options

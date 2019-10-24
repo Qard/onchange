@@ -89,6 +89,12 @@ class Job {
 
 function onchange (match, command, rawArgs, opts = {}) {
   const matches = arrify(match)
+  // fix Windows simple quotes issue in NPM script
+  if (process.platform === 'win32') {
+    const filteredMatches = []
+    matches.forEach(str => filteredMatches.push(str.replace(/'/g, '')))
+    matches = filteredMatches
+  }
   const ready = opts.ready || (() => undefined)
   const initial = !!opts.initial
   const kill = !!opts.kill
