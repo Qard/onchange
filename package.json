@@ -16,12 +16,12 @@
     "@blakeembrey/deque": "^1.0.3",
     "arrify": "^2.0.0",
     "chokidar": "^3.0.0",
-    "cross-spawn": "^6.0.0",
+    "cross-spawn": "^7.0.1",
     "ignore": "^5.1.4",
     "minimist": "^1.2.0",
+    "snyk": "^1.258.2",
     "supports-color": "^7.0.0",
-    "tree-kill": "^1.2.0",
-    "snyk": "^1.258.2"
+    "tree-kill": "^1.2.0"
   },
   "main": "index.js",
   "typings": "index.d.ts",
