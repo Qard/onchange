@@ -21,7 +21,7 @@
     "minimist": "^1.2.0",
     "snyk": "^1.258.2",
     "supports-color": "^7.0.0",
-    "tree-kill": "^1.2.0"
+    "tree-kill": "^1.2.2"
   },
   "main": "index.js",
   "typings": "index.d.ts",
