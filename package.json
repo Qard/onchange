@@ -19,7 +19,7 @@
     "cross-spawn": "^7.0.1",
     "ignore": "^5.1.4",
     "minimist": "^1.2.0",
-    "snyk": "^1.258.2",
+    "snyk": "^1.290.1",
     "supports-color": "^7.0.0",
     "tree-kill": "^1.2.0"
   },
