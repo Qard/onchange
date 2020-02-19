@@ -19,7 +19,6 @@
     "cross-spawn": "^7.0.1",
     "ignore": "^5.1.4",
     "minimist": "^1.2.0",
-    "snyk": "^1.278.2",
     "supports-color": "^7.0.0",
     "tree-kill": "^1.2.2"
   },
@@ -27,9 +26,7 @@
   "typings": "index.d.ts",
   "scripts": {
     "test": "echo \"npm run test:local\"",
-    "test:local": "node test/queue.js && node test/concurrent.js",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "test:local": "node test/queue.js && node test/concurrent.js"
   },
   "repository": {
     "type": "git",
