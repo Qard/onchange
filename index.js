@@ -33,13 +33,10 @@ class Job {
 
     if (this.outpipe) {
       const cmd = this.outpipe(this.options)
+      const stdio = [null, stdout, stderr]
 
       this.log(`executing outpipe "${cmd}"`)
-      this.childOutpipe = exec(cmd, { cwd, env })
-
-      // Must pipe stdout and stderr.
-      this.childOutpipe.stdout.pipe(stdout, { end: false })
-      this.childOutpipe.stderr.pipe(stderr, { end: false })
+      this.childOutpipe = exec(cmd, { cwd, env, stdio })
 
       this.childOutpipe.on('exit', (code, signal) => {
         this.log(`outpipe ${exitmsg(code, signal)}`)
@@ -51,22 +48,16 @@ class Job {
     if (this.command) {
       // Generate argument strings from templates.
       const cmd = this.args.map(tmpl => tmpl(this.options))
+      const stdio = [null, this.childOutpipe ? this.childOutpipe.stdin : stdout, stderr]
 
       this.log(`executing command "${[this.command].concat(cmd).join(' ')}"`)
-      this.childCommand = spawn(this.command, cmd, { cwd, env })
-      this.childCommand.stderr.pipe(stderr, { end: false })
-
-      // If `outpipe`, pipe `stdout` into `outpipe` command.
-      if (this.childOutpipe) {
-        this.childCommand.stdout.pipe(this.childOutpipe.stdin)
-      } else {
-        this.childCommand.stdout.pipe(stdout, { end: false })
-      }
+      this.childCommand = spawn(this.command, cmd, { cwd, env, stdio })
 
       this.childCommand.on('exit', (code, signal) => {
         this.log(`command ${exitmsg(code, signal)}`)
         this.childCommand = undefined
         if (!this.childOutpipe) return onexit()
+        return this.childOutpipe.stdin.end()
       })
     } else {
       // No data to write to `outpipe`.
