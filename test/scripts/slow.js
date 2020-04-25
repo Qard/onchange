@@ -1,7 +1,7 @@
-require('net').createServer().listen()
+require("net").createServer().listen();
 
-console.log(process.argv[2], process.argv[3])
+console.log(process.argv[2], process.argv[3]);
 
 setTimeout(function () {
-  process.exit(0)
-}, 1000)
+  process.exit(0);
+}, 1000);

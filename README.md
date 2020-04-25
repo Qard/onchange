@@ -27,14 +27,6 @@ You can match as many glob patterns as you like, just put the command you want t
 
 ## Options
 
-### Verbose (`-v`, `--verbose`)
-
-Enable if you want verbose logging from `onchange` (useful for debugging). For example:
-
-```sh
-onchange -v 'app/**/*.js' 'test/**/*.js' -- npm test
-```
-
 ### Add (`-a`, `--add`)
 
 To execute the command for all initially added paths:
@@ -53,20 +45,26 @@ onchange -i '**/*.js' -- npm start
 
 ### Exclude (`-e`, `--exclude`)
 
-To exclude matches (`**/node_modules/**` is excluded by default, use `--no-exclude` to disable):
+To exclude matches:
 
 ```sh
 onchange '**/*.ts' -e 'dist/**/*.js' -- tslint
 ```
 
-**P.S.** When you exclude something, it overrides the default, so if you want to keep `**/node_modules/**` excluded, then you need to add it to the command explicitly.
+### No Exclude (`--no-exclude`)
+
+`**/node_modules/**` and `**/.git/**` are excluded by default, use `--no-exclude` to disable:
+
+```sh
+onchange 'node_modules/**' --no-exclude -- tslint
+```
 
 ### Exclude Path (`--exclude-path`)
 
 Excludes all paths in a file following the [`.gitignore`](https://git-scm.com/docs/gitignore) specification.
 
 ```sh
-onchange '**/*' --exclude-path .gitignore -- prettier
+onchange '**' --exclude-path .gitignore -- prettier
 ```
 
 ### Kill (`-k`, `--kill`)
@@ -77,7 +75,7 @@ To kill current and pending processes between changes:
 onchange -k '**/*.js' -- npm test
 ```
 
-### Jobs (`-j`, `--jobs`)
+### Jobs (`-j <n>`, `--jobs <n>`)
 
 Set the maximum concurrent processes to run (default is `1`):
 
@@ -125,7 +123,15 @@ By default, onchange watches for all events from [chokidar](https://github.com/p
 this option to watch only for events you need:
 
 ```sh
-onchange -f 'add change' '**/*.js' -- npm start
+onchange -f add -f change '**/*.js' -- npm start
+```
+
+### Verbose (`-v`, `--verbose`)
+
+Enable if you want verbose logging from `onchange` (useful for debugging). For example:
+
+```sh
+onchange -v 'app/**/*.js' 'test/**/*.js' -- npm test
 ```
 
 ## TypeScript
@@ -134,7 +140,7 @@ Includes [types](index.d.ts) for TypeScript users.
 
 ## Related
 
-* [cli-error-notifier](https://github.com/micromata/cli-error-notifier) - Send native desktop notifications if a command exits with an exit code other than `0`.
+- [cli-error-notifier](https://github.com/micromata/cli-error-notifier) - Send native desktop notifications if a command exits with an exit code other than `0`.
 
 ## License
 
