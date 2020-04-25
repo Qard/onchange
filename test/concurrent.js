@@ -1,45 +1,46 @@
-const fs = require('fs')
-const join = require('path').join
-const assert = require('assert')
-const onchange = require('..')
+const fs = require("fs");
+const join = require("path").join;
+const assert = require("assert");
+const { onchange } = require("..");
 
-const FIXTURE_DIR = join(__dirname, '__test__')
-const OUT_FILE = join(FIXTURE_DIR, 'out.txt')
-const TEST_FILE = join(FIXTURE_DIR, 'test.txt')
+const FIXTURE_DIR = join(__dirname, "__test__");
+const OUT_FILE = join(FIXTURE_DIR, "out.txt");
+const TEST_FILE = join(FIXTURE_DIR, "test.txt");
 
-const FILE_CHANGE_INTERVAL = 400
-const SLOW_CHANGE_INTERVAL = 1000
+const FILE_CHANGE_INTERVAL = 400;
 
 // Set up test directory before proceeding.
-if (!fs.existsSync(FIXTURE_DIR)) fs.mkdirSync(FIXTURE_DIR)
+if (!fs.existsSync(FIXTURE_DIR)) fs.mkdirSync(FIXTURE_DIR);
 
-function run (cb) {
-  const out = fs.createWriteStream(OUT_FILE)
-  let count = 0
+function run(cb) {
+  const out = fs.createWriteStream(OUT_FILE);
+  let count = 0;
 
-  onchange([TEST_FILE], 'node', ['scripts/slow.js', '{{event}}', '{{changed}}'], {
+  const close = onchange({
+    matches: [TEST_FILE],
+    command: ["node", "scripts/slow.js", "{{event}}", "{{changed}}"],
     jobs: 10,
-    poll: true,
     cwd: __dirname,
     stdout: out,
-    ready: () => write()
-  })
+    onReady: () => write(),
+  });
 
-  function write () {
-    if (count === 10) return cb(count)
+  function write() {
+    if (count === 10) {
+      close();
+      return cb(count);
+    }
 
-    count++
-    fs.writeFileSync(TEST_FILE, `${count}\n`)
-    setTimeout(write, FILE_CHANGE_INTERVAL)
+    count++;
+    fs.writeFileSync(TEST_FILE, `${count}\n`);
+    setTimeout(write, FILE_CHANGE_INTERVAL);
   }
 }
 
-function getlines () {
-  return fs.readFileSync(OUT_FILE, 'utf8').trim().split('\n')
+function getLines() {
+  return fs.readFileSync(OUT_FILE, "utf8").trim().split("\n");
 }
 
 run(function (count) {
-  assert.equal(getlines().length, count)
-
-  process.exit(0)
-})
+  assert.equal(getLines().length, count);
+});
