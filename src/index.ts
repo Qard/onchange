@@ -96,26 +96,26 @@ class Job {
  * Onchange configuration options.
  */
 export interface Options {
-  matches: string[];
-  cwd?: string;
+  add?: boolean;
+  awaitWriteFinish?: number;
   command?: string[];
+  cwd?: string;
+  defaultExclude?: boolean;
+  delay?: number;
+  env?: NodeJS.ProcessEnv;
+  exclude?: (string | ((path: string) => boolean))[];
+  filter?: string[];
+  initial?: boolean;
+  jobs?: number;
+  kill?: boolean;
+  killSignal?: NodeJS.Signals;
+  matches: string[];
+  onReady?: () => void;
   outpipe?: string;
+  poll?: number;
+  stderr?: Writable;
   stdin?: Readable;
   stdout?: Writable;
-  stderr?: Writable;
-  add?: boolean;
-  initial?: boolean;
-  onReady?: () => void;
-  exclude?: (string | ((path: string) => boolean))[];
-  defaultExclude?: boolean;
-  kill?: boolean;
-  env?: NodeJS.ProcessEnv;
-  delay?: number;
-  jobs?: number;
-  killSignal?: NodeJS.Signals;
-  filter?: string[];
-  poll?: number;
-  awaitWriteFinish?: number;
   verbose?: boolean;
 }
 
