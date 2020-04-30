@@ -71,10 +71,6 @@ if (!args._.length || help) {
   process.exit();
 }
 
-if (excludePath) {
-  exclude.push(getExcludeFunction(excludePath, cwd));
-}
-
 // Validate command or outpipe is specified.
 if (!command.length && !outpipe) {
   console.error('Remember to pass the command after "--":');
