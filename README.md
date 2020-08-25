@@ -25,6 +25,11 @@ NOTE: Windows users may need to use double quotes rather than single quotes. If 
 
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
 
+Other available replacement variables are `changedExt`
+(`path.extname(changed)`), `changedBase` (`path.basename(changed)`),
+`changedBaseNoExt` (basename, without extension), and `changedDir`
+(`path.dirname(changed)`).
+
 ## Options
 
 ### Add (`-a`, `--add`)

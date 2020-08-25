@@ -1,5 +1,5 @@
 import treeKill from "tree-kill";
-import { resolve } from "path";
+import { resolve, dirname, extname, basename } from "path";
 import { ChildProcess } from "child_process";
 import { spawn } from "cross-spawn";
 import chokidar from "chokidar";
@@ -16,6 +16,10 @@ const ECHO_CMD = `${quote(process.execPath)} ${quote(ECHO_JS_PATH)}`;
 interface State {
   event: string;
   changed: string;
+  changedExt: string;
+  changedBase: string;
+  changedBaseNoExt: string;
+  changedDir: string;
 }
 
 /**
@@ -208,7 +212,15 @@ export function onchange(options: Options): () => void {
    * Enqueue the next change event to run.
    */
   function enqueue(event: string, changed: string) {
-    const state: State = { event, changed };
+    const changedExt = extname(changed);
+    const state: State = {
+      event,
+      changed,
+      changedExt,
+      changedBase: basename(changed),
+      changedBaseNoExt: basename(changed, changedExt),
+      changedDir: dirname(changed),
+    };
 
     // Kill all existing tasks on `enqueue`.
     if (kill) {
