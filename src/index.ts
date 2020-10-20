@@ -15,11 +15,13 @@ const ECHO_CMD = `${quote(process.execPath)} ${quote(ECHO_JS_PATH)}`;
  */
 interface State {
   event: string;
+  /** @deprecated use file instead */
   changed: string;
-  changedExt: string;
-  changedBase: string;
-  changedBaseNoExt: string;
-  changedDir: string;
+  file: string;
+  fileExt: string;
+  fileBase: string;
+  fileBaseNoExt: string;
+  fileDir: string;
 }
 
 /**
@@ -211,15 +213,16 @@ export function onchange(options: Options): () => void {
   /**
    * Enqueue the next change event to run.
    */
-  function enqueue(event: string, changed: string) {
-    const changedExt = extname(changed);
+  function enqueue(event: string, file: string) {
+    const fileExt = extname(file);
     const state: State = {
       event,
-      changed,
-      changedExt,
-      changedBase: basename(changed),
-      changedBaseNoExt: basename(changed, changedExt),
-      changedDir: dirname(changed),
+      changed: file,
+      file,
+      fileExt,
+      fileBase: basename(file),
+      fileBaseNoExt: basename(file, fileExt),
+      fileDir: dirname(file),
     };
 
     // Kill all existing tasks on `enqueue`.
@@ -229,7 +232,7 @@ export function onchange(options: Options): () => void {
     }
 
     // Log the event and the file affected.
-    log(`${changed}: ${event}`);
+    log(`${file}: ${event}`);
 
     // Add item to job queue.
     queue.push(
@@ -248,10 +251,10 @@ export function onchange(options: Options): () => void {
   if (initial) enqueue("", "");
 
   // For any change, creation or deletion, try to run.
-  watcher.on("all", (event, changed) => {
+  watcher.on("all", (event, file) => {
     if (filter.length && filter.indexOf(event) === -1) return;
 
-    return enqueue(event, changed);
+    return enqueue(event, file);
   });
 
   // On ready, prepare triggers.
