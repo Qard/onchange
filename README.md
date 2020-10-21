@@ -18,12 +18,17 @@ onchange 'app/**/*.js' 'test/**/*.js' -- npm test
 onchange -i -k '**/*.js' -- node server.js
 
 # On every change `echo` file change.
-onchange '**/*.js' -- echo '{{event}} to {{changed}}'
+onchange '**/*.js' -- echo '{{event}} to {{file}}'
 ```
 
 NOTE: Windows users may need to use double quotes rather than single quotes. If used in an npm script, remember to escape the double quotes.
 
 You can match as many glob patterns as you like, just put the command you want to run after the `--` and it will run any time a file matching any of the globs is added changed or deleted.
+
+Other available replacement variables are `fileExt`
+(`path.extname(file)`), `fileBase` (`path.basename(file)`),
+`fileBaseNoExt` (basename, without extension), and `fileDir`
+(`path.dirname(file)`).
 
 ## Options
 
@@ -32,7 +37,7 @@ You can match as many glob patterns as you like, just put the command you want t
 To execute the command for all initially added paths:
 
 ```sh
-onchange -a 'config.json' -- microservice-proxy -c {{changed}} -p 9000
+onchange -a 'config.json' -- microservice-proxy -c {{file}} -p 9000
 ```
 
 ### Initial (`-i`, `--initial`)
@@ -80,7 +85,7 @@ onchange -k '**/*.js' -- npm test
 Set the maximum concurrent processes to run (default is `1`):
 
 ```sh
-onchange -j2 '**/*.js' -- cp -v -r '{{changed}}' 'test/{{changed}}'
+onchange -j2 '**/*.js' -- cp -v -r '{{file}}' 'test/{{file}}'
 ```
 
 ### Delay (`-d`, `--delay`)
@@ -112,7 +117,7 @@ onchange -p 100 '**/*.js' -- npm test
 Shell command to execute every change:
 
 ```sh
-onchange -o '> .changelog' 'src/**/*.js' -- echo '{{event}} to {{changed}}'
+onchange -o '> .changelog' 'src/**/*.js' -- echo '{{event}} to {{file}}'
 ```
 
 **P.S.** When a command is used with `--outpipe`, the `stdout` from the command will be piped into `outpipe`.

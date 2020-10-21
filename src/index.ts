@@ -1,5 +1,5 @@
 import treeKill from "tree-kill";
-import { resolve } from "path";
+import { resolve, dirname, extname, basename } from "path";
 import { ChildProcess } from "child_process";
 import { spawn } from "cross-spawn";
 import chokidar from "chokidar";
@@ -15,7 +15,13 @@ const ECHO_CMD = `${quote(process.execPath)} ${quote(ECHO_JS_PATH)}`;
  */
 interface State {
   event: string;
+  /** @deprecated use file instead */
   changed: string;
+  file: string;
+  fileExt: string;
+  fileBase: string;
+  fileBaseNoExt: string;
+  fileDir: string;
 }
 
 /**
@@ -207,8 +213,17 @@ export function onchange(options: Options): () => void {
   /**
    * Enqueue the next change event to run.
    */
-  function enqueue(event: string, changed: string) {
-    const state: State = { event, changed };
+  function enqueue(event: string, file: string) {
+    const fileExt = extname(file);
+    const state: State = {
+      event,
+      changed: file,
+      file,
+      fileExt,
+      fileBase: basename(file),
+      fileBaseNoExt: basename(file, fileExt),
+      fileDir: dirname(file),
+    };
 
     // Kill all existing tasks on `enqueue`.
     if (kill) {
@@ -217,7 +232,7 @@ export function onchange(options: Options): () => void {
     }
 
     // Log the event and the file affected.
-    log(`${changed}: ${event}`);
+    log(`${file}: ${event}`);
 
     // Add item to job queue.
     queue.push(
@@ -236,10 +251,10 @@ export function onchange(options: Options): () => void {
   if (initial) enqueue("", "");
 
   // For any change, creation or deletion, try to run.
-  watcher.on("all", (event, changed) => {
+  watcher.on("all", (event, file) => {
     if (filter.length && filter.indexOf(event) === -1) return;
 
-    return enqueue(event, changed);
+    return enqueue(event, file);
   });
 
   // On ready, prepare triggers.
