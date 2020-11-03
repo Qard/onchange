@@ -74,7 +74,7 @@ if (!args._.length || help) {
 // Validate command or outpipe is specified.
 if (!command.length && !outpipe) {
   console.error('Remember to pass the command after "--":');
-  console.error("  onchange '**/*.js' -- echo '{{changed}}'");
+  console.error("  onchange '**/*.js' -- echo '{{file}}'");
   process.exit(1);
 }
 
