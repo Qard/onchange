@@ -8,6 +8,13 @@ Use glob patterns to watch file sets and run a command when anything is added, c
 npm install onchange
 ```
 
+## Resource Consumption
+onchange is based on [chokidar](https://github.com/paulmillr/chokidar)  a "Minimal and efficient cross-platform file watching library"
+
+"On MacOS, chokidar by default uses a native extension exposing the Darwin FSEvents API. This provides very efficient recursive watching compared with implementations like kqueue available on most *nix platforms. Chokidar still does have to do some work to normalize the events received that way as well."
+
+"On most other platforms, the fs.watch-based implementation is the default, which avoids polling and keeps CPU usage down. Be advised that chokidar will initiate watchers recursively for everything within scope of the paths that have been specified, so be judicious about not wasting system resources by watching much more than needed."
+
 ## Usage
 
 ```sh
