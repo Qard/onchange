@@ -34,7 +34,7 @@ class Job {
   constructor(
     public log: (value: string) => void,
     public command: string[],
-    public outpipe?: string
+    public outpipe?: string,
   ) {}
 
   start(
@@ -43,7 +43,7 @@ class Job {
     stdout: Writable,
     stderr: Writable,
     env: NodeJS.ProcessEnv,
-    onexit: () => void
+    onexit: () => void,
   ) {
     if (this.outpipe) {
       const stdio = [null, stdout, stderr];
@@ -86,12 +86,12 @@ class Job {
   }
 
   kill(killSignal?: NodeJS.Signals) {
-    if (this.childOutpipe) {
+    if (this.childOutpipe?.pid) {
       this.log(`killing outpipe ${this.childOutpipe.pid}`);
       treeKill(this.childOutpipe.pid, killSignal);
     }
 
-    if (this.childCommand) {
+    if (this.childCommand?.pid) {
       this.log(`killing command ${this.childCommand.pid}`);
       treeKill(this.childCommand.pid, killSignal);
     }
@@ -239,8 +239,8 @@ export function onchange(options: Options): () => void {
       new Job(
         log,
         command.map((arg) => arg(state)),
-        outpipe?.(state)
-      )
+        outpipe?.(state),
+      ),
     );
 
     // Try to immediately run the enqueued job.

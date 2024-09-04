@@ -2,65 +2,54 @@
   "name": "onchange",
   "version": "7.1.0",
   "description": "Use glob patterns to watch file sets and run a command when anything is added, changed or deleted.",
-  "author": "Stephen Belanger <admin@stephenbelanger.com>",
   "keywords": [
     "glob",
     "watch",
     "change"
   ],
-  "bin": {
-    "onchange": "dist/bin.js"
-  },
-  "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "files": [
-    "dist/"
-  ],
-  "scripts": {
-    "prettier": "prettier --write",
-    "format": "npm run prettier -- \"{,{src,test}/**/}*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
-    "build": "rimraf dist/ && tsc",
-    "test": "echo \"npm run test:local\"",
-    "test:local": "node test/queue.js && node test/concurrent.js",
-    "prepare": "npm run build"
+  "homepage": "https://github.com/Qard/onchange",
+  "bugs": {
+    "url": "https://github.com/Qard/onchange/issues"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Qard/onchange.git"
   },
-  "bugs": {
-    "url": "https://github.com/Qard/onchange/issues"
+  "license": "MIT",
+  "author": "Stephen Belanger <admin@stephenbelanger.com>",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "bin": {
+    "onchange": "dist/bin.js"
   },
-  "homepage": "https://github.com/Qard/onchange",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "ts-scripts build",
+    "format": "ts-scripts format",
+    "lint": "ts-scripts lint",
+    "prepare": "ts-scripts install && npm run build",
+    "test": "echo \"npm run test:local\"",
+    "test:local": "node test/queue.js && node test/concurrent.js"
   },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,md,yml,yaml}": "npm run prettier"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "snyk": true,
   "dependencies": {
     "@blakeembrey/deque": "^1.0.5",
     "@blakeembrey/template": "^1.2.0",
-    "arg": "^4.1.3",
-    "chokidar": "^3.3.1",
+    "arg": "^5.0.2",
+    "chokidar": "^3.6.0",
     "cross-spawn": "^7.0.1",
     "ignore": "^5.1.4",
     "tree-kill": "^1.2.2"
   },
   "devDependencies": {
+    "@borderless/ts-scripts": "^0.15.0",
     "@types/cross-spawn": "^6.0.1",
-    "@types/node": "^14.0.0",
-    "husky": "^4.2.5",
-    "lint-staged": "^10.1.7",
-    "prettier": "^2.0.5",
-    "rimraf": "^3.0.2",
-    "typescript": "^3.7.5"
-  }
+    "@types/node": "^22.5.4",
+    "typescript": "^5.5.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "snyk": true
 }

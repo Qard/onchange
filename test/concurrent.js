@@ -14,7 +14,6 @@ if (!fs.existsSync(FIXTURE_DIR)) fs.mkdirSync(FIXTURE_DIR);
 
 function run(cb) {
   const out = fs.createWriteStream(OUT_FILE);
-  let count = 0;
 
   const close = onchange({
     matches: [TEST_FILE],
@@ -22,18 +21,17 @@ function run(cb) {
     jobs: 10,
     cwd: __dirname,
     stdout: out,
-    onReady: () => write(),
+    onReady: () => write(0),
   });
 
-  function write() {
+  function write(count) {
     if (count === 10) {
       close();
       return cb(count);
     }
 
-    count++;
     fs.writeFileSync(TEST_FILE, `${count}\n`);
-    setTimeout(write, FILE_CHANGE_INTERVAL);
+    setTimeout(write, FILE_CHANGE_INTERVAL, count + 1);
   }
 }
 
